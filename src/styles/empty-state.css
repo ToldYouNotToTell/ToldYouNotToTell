@@ -1,0 +1,27 @@
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .empty-icon {
+    font-size: 48px;
+    color: var(--icon-color);
+    margin-bottom: 20px;
+  }
+  
+  .empty-state h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+  }
+  
+  .empty-state p {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 20px;
+  }
+  
+  .empty-action {
+    margin-top: 20px;
+  }
