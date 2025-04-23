@@ -1,24 +1,28 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { useUniversalStorage } from '@/hooks/useUniversalStorage';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type ThemeContextType = {
-  theme: 'light' | 'dark';
+  theme: string;
   toggleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useUniversalStorage<'light' | 'dark'>('theme', 'dark');
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    document.body.classList.toggle('light-mode', savedTheme === 'light');
+  }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.body.classList.toggle('light-mode', newTheme === 'light');
   };
 
   return (
@@ -28,10 +32,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useTheme = () => {
+export function useTheme() {
   const context = useContext(ThemeContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
-};
+}

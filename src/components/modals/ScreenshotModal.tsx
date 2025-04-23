@@ -1,7 +1,7 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import html2canvas from 'html2canvas';
+import { useWeb3 } from '@/hooks/useWeb3';
+import { IconX } from '@tabler/icons-react'; // Альтернатива FaTimes
 
 export default function ScreenshotModal({ 
   post,
@@ -10,21 +10,20 @@ export default function ScreenshotModal({
   post: Post;
   onClose: () => void;
 }) {
+  const { captureRef, downloadImage } = useWeb3();
   const contentRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
     if (contentRef.current) {
-      const canvas = await html2canvas(contentRef.current);
-      const link = document.createElement('a');
-      link.download = `ToldYouNotToTell-post-${post.id}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      await downloadImage(contentRef.current, `ToldYouNotToTell-post-${post.id}`);
     }
   };
 
   return (
     <div className="screenshot-preview">
-      <button className="close-screenshot" onClick={onClose}>&times;</button>
+      <button className="close-screenshot" onClick={onClose}>
+        <IconX size={20} /> {/* Используем иконку из Tabler */}
+      </button>
       <div className="screenshot-content" ref={contentRef}>
         <div>
           <h3>{post.title}</h3>
@@ -33,18 +32,11 @@ export default function ScreenshotModal({
         </div>
       </div>
       <button 
+        className="download-btn" 
         onClick={handleDownload}
-        style={{
-          marginTop: '20px',
-          padding: '10px 20px',
-          background: 'var(--primary-color)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
+        disabled={captureRef.isLoading}
       >
-        Download Image
+        {captureRef.isLoading ? 'Processing...' : 'Download Image'}
       </button>
     </div>
   );

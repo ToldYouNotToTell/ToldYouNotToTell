@@ -1,77 +1,148 @@
+/* ========== Основные переменные ========== */
 :root {
-    --bg-color: #0a0e17;
-    --text-color: #e0e0e0;
-    --primary-color: #5d7ebc;
-    --secondary-color: #1a1f2d;
-    --card-bg: rgba(10, 14, 23, 0.85);
-    --border-color: rgba(255, 255, 255, 0.15);
-    --error-color: #ff6b6b;
-    --icon-color: #bbb;
-    --staking-color: #FF5722;
-  }
+  /* Цвета (тема по умолчанию - темная) */
+  --bg-color: #0a0e17;
+  --text-color: #e0e0e0;
+  --primary-color: #5d7ebc;
+  --secondary-color: #1a1f2d;
+  --card-bg: rgba(10, 14, 23, 0.85);
+  --border-color: rgba(255, 255, 255, 0.15);
+  --error-color: #ff6b6b;
+  --icon-color: #bbb;
+  --star-color: gold;
+  --moderator-color: #ff5722;
   
-  .light-mode {
-    --bg-color: #f5f7fa;
-    --text-color: #333333;
-    --primary-color: #4a6fa5;
-    --secondary-color: #e0e6ed;
-    --card-bg: rgba(245, 247, 250, 0.95);
-    --border-color: rgba(0, 0, 0, 0.2);
-    --error-color: #e63946;
-    --icon-color: #666;
-  }
+  /* Специфичные для компонентов */
+  --post-side-padding: 15px;
+  --post-content-padding: 30px;
   
-  body {
-    margin: 0;
-    font-family: 'Tahoma', sans-serif;
-    background: url('https://imagizer.imageshack.com/img924/2739/6DOg7G.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: var(--text-color);
-    position: relative;
-    min-height: 100vh;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
+  /* Градиенты */
+  --phantom-gradient: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+  --presale-gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+}
+
+/* Светлая тема */
+.light-mode {
+  --bg-color: #f5f7fa;
+  --text-color: #333333;
+  --primary-color: #4a6fa5;
+  --secondary-color: #e0e6ed;
+  --card-bg: rgba(245, 247, 250, 0.95);
+  --border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* ========== Базовые стили ========== */
+@import url('https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Tahoma', sans-serif;
+  background: url('https://imagizer.imageshack.com/img924/2739/6DOg7G.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--text-color);
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* ========== Компоненты из репозитория ========== */
+/* Header */
+.header {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+}
+
+/* Кнопки */
+.btn {
+  transition: transform 0.2s, opacity 0.3s;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Карточки постов */
+.post-card {
+  border-left: 4px solid transparent;
+  transition: box-shadow 0.3s;
+}
+.post-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== Стили из HTML ========== */
+/* Шапка */
+.header-bar {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(10, 14, 23, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.light-mode .header-bar {
+  background: rgba(245, 247, 250, 0.95);
+}
+
+/* Модальные окна */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+.modal-overlay {
+  background: var(--overlay-bg);
+}
+
+/* Анимации (из animations.css) */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.pulse {
+  animation: pulse 1.5s infinite;
+}
+
+/* ========== Специфичные стили для бустов ========== */
+.boost-basic {
+  border-left-color: var(--boost-basic-color);
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.05) 0%, transparent 100%);
+}
+
+.boost-premium {
+  border-left-color: var(--boost-premium-color);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 188, 212, 0.1) 0%, transparent 20%);
+}
+
+/* ========== Адаптивность ========== */
+@media (max-width: 768px) {
   .header-bar {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    background: rgba(10, 14, 23, 0.9);
-    font-size: 18px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    flex-wrap: wrap;
   }
-  
-  .highlight {
-    background-color: rgba(255, 255, 0, 0.3);
-    padding: 0 2px;
-    border-radius: 2px;
+  .post-card {
+    padding: 12px;
   }
-  
-  /* Анимации для взаимодействий */
-  button, a {
-    transition: all 0.2s ease;
-  }
-  
-  button:active, a:active {
-    transform: scale(0.98);
-  }
-  
-  /* Кастомный скроллбар */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: var(--secondary-color);
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 4px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #3a5a8f;
-  }
-  /* ... остальные стили из оригинального index.html ... */
+}
+
+/* ========== Водяные знаки и утилиты ========== */
+.watermark {
+  font-family: 'Great Vibes', cursive;
+  opacity: 0.3;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ========== Стили для Solana-кошелька ========== */
+.wallet-adapter-button {
+  background: var(--phantom-gradient) !important;
+}

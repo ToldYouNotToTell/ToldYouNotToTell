@@ -1,20 +1,25 @@
 interface Post {
-    id: number;
-    title: string;
-    content: string;
-    category?: string;
-    voters: string[];
-    date: Date;
-    comments: Comment[];
-    orderNumber: number;
-    authorIP?: string;
-    authorWallet?: string;
-    boostAmount?: number;
-    boostTime?: number;
-    currentBoostWeight?: number;
-  }
-  
-  interface Comment {
-    id: number;
-    text: string;
-  }
+  id: string;
+  title: string;
+  content: string;
+  voters: string[];
+  date: string;
+  comments: Comment[];
+  orderNumber: number;
+  authorId?: string;
+  authorWallet?: string;
+  category?: string;
+  boostAmount?: number;
+  boostTime?: number;
+  currentBoostWeight?: number;
+  moderatedBy?: string;
+  moderatorNote?: string;
+  recoveryCode?: string;
+}
+
+interface Comment {
+  id: string;
+  text: string;
+  authorId: string;
+  date: string;
+}
