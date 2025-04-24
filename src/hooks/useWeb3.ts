@@ -1,35 +1,53 @@
-"use client";
+// src/hooks/useWeb3.ts
+'use client';
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
+import { useUniversalStorage } from '@/hooks/useUniversalStorage';  // убедитесь, что путь корректен
+
+declare global {
+  interface Window {
+    solana?: any;
+  }
+}
 
 export function useWeb3() {
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("");
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
+  // Хук работы с localStorage, возвращает [value, setValue]
+  const [storedWallet, setStoredWallet] = useUniversalStorage<string | null>(
+    'phantomWallet',
+    null
+  );
+
+  // При инициализации подхватываем сохранённый кошелёк
+  useEffect(() => {
+    if (storedWallet) {
+      setWalletAddress(storedWallet);
+      setIsConnected(true);
+    }
+  }, [storedWallet]);
+
+  // Функция подключения Phantom
   const connectWallet = async () => {
-    try {
-      if (window.solana && window.solana.isPhantom) {
-        const response = await window.solana.connect();
-        setWalletAddress(response.publicKey.toString());
-        setWalletConnected(true);
-        setValue("phantomWallet", response.publicKey.toString());
+    if (window.solana?.isPhantom) {
+      try {
+        const resp = await window.solana.connect();
+        const pubkey = resp.publicKey.toString();
+        setWalletAddress(pubkey);
+        setIsConnected(true);
+        setStoredWallet(pubkey);
+      } catch (err) {
+        console.error('Phantom connection error', err);
       }
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
+    } else {
+      window.open('https://phantom.app/', '_blank');
     }
   };
 
-  useEffect(() => {
-    const savedWallet = useUniversalStorage("phantomWallet");
-    if (savedWallet) {
-      setWalletAddress(savedWallet);
-      setWalletConnected(true);
-    }
-  }, []);
-
   return {
-    walletConnected,
-    walletAddress,
     connectWallet,
+    walletAddress,
+    isConnected,
   };
 }

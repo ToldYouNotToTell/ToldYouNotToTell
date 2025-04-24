@@ -1,12 +1,17 @@
+// src/app/layout.tsx
 import "@/styles/globals.css";
-import { FirebaseProvider } from "@/components/FirebaseProvider";
-import { Web3Provider } from "@/contexts/Web3Context";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { PostsProvider } from "@/contexts/PostsContext";
-import { StakingProvider } from "@/contexts/StakingContext";
-import { RewardsProvider } from "@/contexts/RewardsContext";
-import '@/styles/theme.css';
-import { SEO } from "@/components/SEO";
+import "@/styles/theme.css";
+
+import { FirebaseProvider }   from "@/components/FirebaseProvider";
+import { Web3Provider }       from "@/contexts/Web3Context";
+import { ThemeProvider }      from "@/contexts/ThemeContext";
+import { PostsProvider }      from "@/contexts/PostsContext";
+import { StakingProvider }    from "@/contexts/StakingContext";
+import { RewardsProvider }    from "@/contexts/RewardsContext";
+
+import { SEO }                    from "@/components/SEO";
+import Header                 from "@/components/header/Header";      // <<< добавили
+import BackToTopButton        from "@/components/ui/buttons/BackToTopButton"; // опционально, если хотите кнопку всегда
 
 export default function RootLayout({
   children,
@@ -14,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ru" suppressHydrationWarning>
       <head>
         <SEO />
       </head>
@@ -24,7 +29,16 @@ export default function RootLayout({
             <ThemeProvider>
               <StakingProvider>
                 <RewardsProvider>
-                  <PostsProvider>{children}</PostsProvider>
+                  <PostsProvider>
+                    {/* Шапка сайта */}
+                    <Header />
+
+                    {/* Основной контент */}
+                    <main>{children}</main>
+
+                    {/* Кнопка "Наверх", если хотите всегда */}
+                    <BackToTopButton />
+                  </PostsProvider>
                 </RewardsProvider>
               </StakingProvider>
             </ThemeProvider>

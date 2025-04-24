@@ -1,8 +1,19 @@
+// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [],
+  content: [
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/contexts/**/*.{js,ts,jsx,tsx}",
+    // если у вас есть другие папки с JSX/TSX
+  ],
   theme: {
-    extend: {},
+    extend: {
+      // здесь ваши расширения темизации
+    },
   },
-  plugins: [],
-}
+  plugins: [
+    // например, require('@tailwindcss/forms'), и т.д.
+  ],
+};
