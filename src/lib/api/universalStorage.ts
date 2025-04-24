@@ -1,52 +1,56 @@
+// src/lib/api/universalStorage.ts
+
 import {
+  collection,
   doc,
   getDoc,
-  setDoc,
+  getDocs,
+  addDoc,
   updateDoc,
-  arrayUnion,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
   arrayRemove,
-} from "firebase/firestore";
-import { db } from "./firebase";
+} from 'firebase/firestore';
+
+import type { Post } from '@/types/post';
+import { db } from '@/lib/firebase';
 
 export class UniversalStorage {
+  private collectionRef = collection(db, 'posts');
+
   async getPost(id: string): Promise<Post | null> {
-    const docRef = doc(db, "posts", id);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists()
-      ? ({ id: docSnap.id, ...docSnap.data() } as Post)
-      : null;
+    const docRef = doc(this.collectionRef, id);
+    const snap = await getDoc(docRef);
+    return snap.exists() ? (snap.data() as Post) : null;
   }
 
   async getPosts(): Promise<Post[]> {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    return querySnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Post)
+    const snaps = await getDocs(
+      query(this.collectionRef, orderBy('timestamp', 'desc'), limit(100))
     );
+    return snaps.docs.map(doc => doc.data() as Post);
   }
 
-  async addPost(post: Omit<Post, "id">): Promise<string> {
-    const docRef = await addDoc(collection(db, "posts"), post);
-    return docRef.id;
+  async addPost(post: Omit<Post, 'id'>): Promise<string> {
+    const ref = await addDoc(this.collectionRef, post);
+    return ref.id;
   }
 
-  async updatePost(id: string, updates: Partial<Post>): Promise<void> {
-    const postRef = doc(db, "posts", id);
-    await updateDoc(postRef, updates);
+  async updatePost(id: string, data: Partial<Post>): Promise<void> {
+    const docRef = doc(this.collectionRef, id);
+    await updateDoc(docRef, data);
   }
 
   async deletePost(id: string): Promise<void> {
-    const postRef = doc(db, "posts", id);
-    await deleteDoc(postRef);
+    const docRef = doc(this.collectionRef, id);
+    await deleteDoc(docRef);
   }
 
-  async votePost(postId: string, userId: string): Promise<void> {
-    const postRef = doc(db, "posts", postId);
-    const post = await this.getPost(postId);
-
-    if (post?.voters.includes(userId)) {
-      await updateDoc(postRef, { voters: arrayRemove(userId) });
-    } else {
-      await updateDoc(postRef, { voters: arrayUnion(userId) });
-    }
+  async removeTagFromPost(id: string, tag: string): Promise<void> {
+    const docRef = doc(this.collectionRef, id);
+    await updateDoc(docRef, { tags: arrayRemove(tag) });
   }
 }

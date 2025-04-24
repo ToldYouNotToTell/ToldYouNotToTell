@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { usePosts } from "@/contexts/PostsContext";
-
-export function usePosts() {
-  return usePosts();
-}
+/**
+ * Прямой реэкспорт хука usePosts из контекста PostsContext.
+ * Больше никакой дополнительной логики.
+ */
+export { usePosts } from '@/contexts/PostsContext';

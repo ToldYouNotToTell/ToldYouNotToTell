@@ -1,7 +1,7 @@
 "use client";
 
 import { usePosts } from "@/hooks/usePosts";
-import PostCard from "./PostCard";
+import PostCard from '@/components/ui/cards/PostCard';
 
 export default function PostList() {
   const { posts } = usePosts();

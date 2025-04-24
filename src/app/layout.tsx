@@ -1,10 +1,11 @@
-import "./globals.css";
+import "@/styles/globals.css";
 import { FirebaseProvider } from "@/components/FirebaseProvider";
 import { Web3Provider } from "@/contexts/Web3Context";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { PostsProvider } from "@/contexts/PostsContext";
 import { StakingProvider } from "@/contexts/StakingContext";
 import { RewardsProvider } from "@/contexts/RewardsContext";
+import '@/styles/theme.css';
 import { SEO } from "@/components/SEO";
 
 export default function RootLayout({

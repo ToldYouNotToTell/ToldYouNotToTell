@@ -1,0 +1,54 @@
+/* theme.css */
+
+/* Основные переменные цветов для тёмной темы */
+:root {
+    --bg-color: #0a0e17;
+    --text-color: #e0e0e0;
+    --primary-color: #5d7ebc;
+    --secondary-color: #1a1f2d;
+    --card-bg: rgba(10, 14, 23, 0.85);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --comment-bg: rgba(255, 255, 255, 0.1);
+    --overlay-bg: rgba(0, 0, 0, 0.9);
+    --search-bg: rgba(255, 255, 255, 0.1);
+    --error-color: #ff6b6b;
+    --icon-color: #bbb;
+    --star-counter-color: #aaa;
+    --sort-btn-bg: rgba(255,255,255,0.15);
+    --sort-btn-active-bg: #5d7ebc;
+    --star-color: gold;
+    --post-side-padding: 15px;
+    --post-content-padding: 30px;
+    --moderator-color: #ff5722;
+    --category-color: #0a0a2a;
+    --category-text-color: #5d7ebc;
+    --boost-basic-color: #4CAF50;
+    --boost-start-plus-color: #9C27B0;
+    --boost-advanced-color: #2196F3;
+    --boost-premium-color: #00BCD4;
+    --boost-elite-color: #607D8B;
+    --boost-sponsor-color: #FFC107;
+    --staking-color: #FF5722;
+  }
+  
+  /* Переменные для светлой темы */
+  .light-mode {
+    --bg-color: #f5f7fa;
+    --text-color: #333333;
+    --primary-color: #4a6fa5;
+    --secondary-color: #e0e6ed;
+    --card-bg: rgba(245, 247, 250, 0.95);
+    --border-color: rgba(0, 0, 0, 0.2);
+    --comment-bg: rgba(0, 0, 0, 0.05);
+    --overlay-bg: rgba(255, 255, 255, 0.95);
+    --search-bg: rgba(0, 0, 0, 0.08);
+    --error-color: #e63946;
+    --icon-color: #666;
+    --star-counter-color: #777;
+    --sort-btn-bg: rgba(74, 111, 165, 0.2);
+    --sort-btn-active-bg: #4a6fa5;
+    --star-color: gold;
+    --moderator-color: #e91e63;
+    --category-color: #0a0a2a;
+    --category-text-color: #4a6fa5;
+  }  
