@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Общие настройки: только чтение, запись запрещена
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    // Результаты жеребьёвки (пишутся исключительно сервером через Admin SDK)
+    match /dailyRewards/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Посты
+    match /posts/{postId} {
+      // Все могут читать
+      allow read: if true;
+      // Создавать можно только после проверки капчи и если текст не слишком длинный
+      allow create: if request.headers['x-captcha-verified'] == 'true'
+                    && request.resource.data.content.size() < 1000;
+
+      // Правка и удаление:
+      // • Автор (по кошельку или по IP в первые 3 часа)
+      // • Или платный доступ (после 3 часов) с наличием paymentTx
+      // • Или модератор
+      allow update, delete: if (
+        resource.data.authorWallet == request.auth.token.wallet_address
+        || (resource.data.authorIp == request.ip
+            && request.time < resource.data.createTime + duration(3, 'h'))
+      ) || (
+        request.auth.token.paid_edit == true
+        && request.resource.data.paymentTx.exists()
+      ) || (
+        request.auth.token.isModerator == true
+      );
+    }
+
+    // Репорты (модерация)
+    match /reports/{reportId} {
+      allow read: if request.auth.token.isModerator == true;
+      allow create: if true;
+    }
+
+    // Стейкинг (запись баланса)
+    match /staking/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.token.wallet_address == userId;
+    }
+
+    // **Будущие правила для presale-участников**
+    // match /presale/{participantId} {
+    //   allow read: if request.auth != null;
+    //   allow create: if request.auth.token.wallet_address == participantId
+    //                 && request.resource.data.presaleCode == <your_logic>;
+    //   allow update, delete: if false;
+    // }
+  }
+}

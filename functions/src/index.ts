@@ -1,55 +1,57 @@
-import { onSchedule } from 'firebase-functions/v2/pubsub';
-import { initializeApp, getApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import type { EventContext } from 'firebase-functions';
+import { onSchedule } from 'firebase-functions/v2/pubsub'
+import { initializeApp, getApp } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
+import type { EventContext } from 'firebase-functions'
 
-// Инициализация Admin SDK
-initializeApp();
-const db = getFirestore(getApp());
+// Инициализируем Admin SDK
+initializeApp()
+const db = getFirestore(getApp())
 
 /**
  * Ежедневный розыгрыш наград:
- * - Собирает топ-10 постов за последние 24 часа
- * - Вычисляет доли наград по вашей логике (см. TYNTT_Reward_System_EN.docx)
- * - Записывает результаты в коллекцию "dailyRewards"
+ * - Собирает топ-10 постов за последние 24 часа (по полю 'stars')
+ * - Берёт пул наград из документа settings/rewardPool.amount
+ * - Равномерно распределяет 50% пула между этими постами
+ * - Записывает результаты в коллекцию dailyRewards
  */
 export const dailyRewardDraw = onSchedule(
   {
-    schedule: '0 0 * * *',      // каждый день в 00:00 по расписанию cron
-    timeZone: 'Asia/Dubai',     // локальное время для Дубая
-    region: 'asia-south1'       // регион ближе к пользователям Ближнего Востока
+    schedule: '0 0 * * *',      // каждый день в 00:00 по cron
+    timeZone: 'Asia/Dubai',     // локальное время Дубая
+    region: 'asia-south1'       // регион для выполнения
   },
   async (context: EventContext) => {
-    // 1) Считаем начало периода — 24 часа назад
-    const since = Date.now() - 24 * 60 * 60 * 1000;
+    // 1) Определяем временную границу — 24 часа назад
+    const since = Date.now() - 24 * 60 * 60 * 1000
     const topSnap = await db
       .collection('posts')
       .where('timestamp', '>=', since)
       .orderBy('stars', 'desc')
       .limit(10)
-      .get();
+      .get()
 
-    // 2) Готовим пул наград (из вашего документа)
-    const rewardPoolDoc = await db.collection('settings').doc('rewardPool').get();
-    const pool = rewardPoolDoc.exists ? rewardPoolDoc.data()!.amount : 0;
+    // 2) Загружаем текущий пул наград
+    const poolDoc = await db.collection('settings').doc('rewardPool').get()
+    const pool = poolDoc.exists ? poolDoc.data()!.amount : 0
 
-    // 3) Распределяем награды (пример: 50% — на топ-10 равными долями)
-    const topCount = topSnap.docs.length;
-    const share = (pool * 0.5) / topCount;
+    // 3) Вычисляем долю для каждого из топ-10 (50% пула)
+    const count = topSnap.docs.length
+    const share = count > 0 ? (pool * 0.5) / count : 0
 
-    const batch = db.batch();
-    topSnap.docs.forEach(doc => {
-      const rewardData = {
+    // 4) Подготавливаем batch-операцию для записи результатов
+    const batch = db.batch()
+    for (const doc of topSnap.docs) {
+      const rewardEntry = {
         postId: doc.id,
         amount: share,
-        drawnAt: Date.now(),
-      };
-      const ref = db.collection('dailyRewards').doc();
-      batch.set(ref, rewardData);
-    });
+        drawnAt: Date.now()
+      }
+      const ref = db.collection('dailyRewards').doc()
+      batch.set(ref, rewardEntry)
+    }
 
-    await batch.commit();
-
-    console.log(`Daily draw completed: distributed to ${topCount} posts`);
+    // 5) Коммитим все записи
+    await batch.commit()
+    console.log(`Daily draw completed: distributed to ${count} posts`)
   }
-);
+)

@@ -1,35 +1,26 @@
 'use client';
-
+import React, { useEffect, useState } from 'react';
+import { connectPhantom } from '@/lib/uiActions';
 import { useWeb3 } from '@/hooks/useWeb3';
-import { useEffect, useState } from 'react';
 
 export default function PhantomButton() {
-  const { connectWallet, walletAddress, isConnected } = useWeb3();
+  const { walletAddress, isConnected } = useWeb3();
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    // Проверка наличия Phantom Wallet при загрузке
-    const checkPhantom = () => {
-      if (window.solana?.isPhantom) {
-        console.log('Phantom Wallet is installed');
-      }
-    };
-    window.addEventListener('load', checkPhantom);
-    return () => window.removeEventListener('load', checkPhantom);
+    if (window.solana?.isPhantom) {
+      console.log('Phantom Wallet is installed');
+    }
   }, []);
 
   const handleClick = async () => {
-    try {
-      await connectWallet();
-    } catch (error) {
-      console.error('Connection error:', error);
-    }
+    await connectPhantom();
   };
 
   if (!isConnected) {
     return (
-      <button 
-        className="phantom-btn" 
+      <button
+        className="phantom-btn"
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -40,17 +31,17 @@ export default function PhantomButton() {
   }
 
   return (
-    <button 
-      className="phantom-btn" 
-      style={{ 
-        background: isHovered 
-          ? 'linear-gradient(135deg, #14F195 0%, #9945FF 100%)' 
+    <button
+      className="phantom-btn"
+      style={{
+        background: isHovered
+          ? 'linear-gradient(135deg, #14F195 0%, #9945FF 100%)'
           : 'linear-gradient(135deg, #9945FF 0%, #14F195 100%)'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <i className="fas fa-wallet"></i> {`${walletAddress?.slice(0, 4)}...${walletAddress?.slice(-4)}`}
+      <i className="fas fa-wallet"></i> {`${walletAddress?.slice(0,4)}...${walletAddress?.slice(-4)}`}
     </button>
   );
 }

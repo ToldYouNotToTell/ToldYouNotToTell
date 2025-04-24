@@ -1,13 +1,11 @@
 'use client';
-
-import { useTheme } from '@/contexts/ThemeContext';
+import React from 'react';
+import { toggleTheme } from '@/lib/uiActions';
 
 export default function ThemeToggleButton() {
-  const { currentTheme, toggleTheme } = useTheme();
-
   return (
-    <button className="theme-toggle" onClick={toggleTheme}>
-      <i className={currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun'}></i>
+    <button className="theme-toggle" onClick={() => toggleTheme()}>
+      <i className="fas fa-moon"></i>
     </button>
   );
 }
