@@ -1,24 +1,34 @@
-import Header from "@/components/header/Header";
-import PostList from "@/components/posts/PostList";
-import SortControls from "@/components/posts/SortControls";
-import PostForm from "@/components/posts/PostForm";
-import BackToTopButton from "@/components/ui/buttons/BackToTopButton";
-import { usePosts } from "@/hooks/usePosts";
-import { useTheme } from "@/contexts/ThemeContext";
+// src/app/main/page.tsx
+'use client';
 
-export default function Home() {
-  const { posts, addPost, editPost, deletePost } = usePosts();
-  const { theme } = useTheme();
+import { useState } from 'react';
+import { usePosts } from '@/contexts/PostsContext';
+import PostList from '@/components/posts/PostList';
+import PostForm from '@/components/posts/PostForm';
+import BackToTopButton from '@/components/ui/buttons/BackToTopButton';
+
+export default function MainPage() {
+  const { addPost } = usePosts();
+  const [isFormOpen, setFormOpen] = useState(false);
 
   return (
-    <div className={`container ${theme}`}>
-      <Header />
-      <SortControls />
+    <div>
+      <button className="add-post-btn" onClick={() => setFormOpen(true)}>
+        + New Note
+      </button>
 
-      <PostList posts={posts} onEdit={editPost} onDelete={deletePost} />
+      {/* Рендерим список постов без пропсов */}
+      <PostList />
 
-      <PostForm onSubmit={addPost} />
-      <BackButton />
+      {/* Форма добавления, передаём только колбэки */}
+      {isFormOpen && (
+        <PostForm
+          onSubmit={addPost}
+          onClose={() => setFormOpen(false)}
+        />
+      )}
+
+      <BackToTopButton />
     </div>
   );
 }

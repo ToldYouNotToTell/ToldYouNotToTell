@@ -1,3 +1,4 @@
+// src/contexts/PostsContext.tsx
 'use client';
 
 import React, {
@@ -10,12 +11,11 @@ import React, {
 import { Post } from '@/types/post';
 import { UniversalStorage } from '@/lib/api/universalStorage';
 
-type PostsContextType = {
+export type PostsContextType = {
   posts: Post[];
   loading: boolean;
   error: string | null;
   searchPosts: (query: string) => void;
-  // Здесь разрешаем передавать только title, category и content
   addPost: (
     post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
   ) => Promise<void>;
@@ -23,7 +23,21 @@ type PostsContextType = {
   deletePost: (id: string) => Promise<void>;
   getPost: (id: string) => Post | undefined;
   votePost: (postId: string, userId: string) => Promise<void>;
-  addComment: (postId: string, text: string, userId: string) => Promise<void>;
+  addComment: (
+    postId: string,
+    text: string,
+    userId: string
+  ) => Promise<void>;
+
+  // --- новые методы для UI ---
+  ratePost: (postId: string, e: React.MouseEvent) => void;
+  reportPost: (postId: string) => void;
+  sharePostDirect: (
+    platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
+    postId: string
+  ) => void;
+  copyPostLink: (postId: string) => void;
+  downloadPostImage: (postId: string) => void;
 };
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
@@ -35,6 +49,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const storage = new UniversalStorage();
 
+  // Загрузка
   useEffect(() => {
     async function fetchPosts() {
       try {
@@ -52,6 +67,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     fetchPosts();
   }, [storage]);
 
+  // CRUD
   const addPost = async (
     post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
   ) => {
@@ -66,8 +82,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         orderNumber: posts.length + 1,
       };
       await storage.addPost(newPost);
-      setPosts((prev) => [newPost, ...prev]);
-      setFilteredPosts((prev) => [newPost, ...prev]);
+      setPosts((p) => [newPost, ...p]);
+      setFilteredPosts((p) => [newPost, ...p]);
     } catch (err) {
       console.error(err);
       setError('Failed to add post');
@@ -80,11 +96,9 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       await storage.updatePost(id, updates);
-      setPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
-      );
-      setFilteredPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+      setPosts((p) => p.map((x) => (x.id === id ? { ...x, ...updates } : x)));
+      setFilteredPosts((p) =>
+        p.map((x) => (x.id === id ? { ...x, ...updates } : x))
       );
     } catch (err) {
       console.error(err);
@@ -98,8 +112,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       await storage.deletePost(id);
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-      setFilteredPosts((prev) => prev.filter((p) => p.id !== id));
+      setPosts((p) => p.filter((x) => x.id !== id));
+      setFilteredPosts((p) => p.filter((x) => x.id !== id));
     } catch (err) {
       console.error(err);
       setError('Failed to delete post');
@@ -108,6 +122,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Голосование
   const votePost = async (postId: string, userId: string) => {
     try {
       setLoading(true);
@@ -118,11 +133,11 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         ? p.voters.filter((id) => id !== userId)
         : [...p.voters, userId];
       await storage.updatePost(postId, { voters });
-      setPosts((prev) =>
-        prev.map((x) => (x.id === postId ? { ...x, voters } : x))
+      setPosts((p) =>
+        p.map((x) => (x.id === postId ? { ...x, voters } : x))
       );
-      setFilteredPosts((prev) =>
-        prev.map((x) => (x.id === postId ? { ...x, voters } : x))
+      setFilteredPosts((p) =>
+        p.map((x) => (x.id === postId ? { ...x, voters } : x))
       );
     } catch (err) {
       console.error(err);
@@ -132,6 +147,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Комментарии
   const addComment = async (
     postId: string,
     text: string,
@@ -146,18 +162,14 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         date: new Date().toISOString(),
       };
       await storage.addComment(postId, newComment);
-      setPosts((prev) =>
-        prev.map((x) =>
-          x.id === postId
-            ? { ...x, comments: [...x.comments, newComment] }
-            : x
+      setPosts((p) =>
+        p.map((x) =>
+          x.id === postId ? { ...x, comments: [...x.comments, newComment] } : x
         )
       );
-      setFilteredPosts((prev) =>
-        prev.map((x) =>
-          x.id === postId
-            ? { ...x, comments: [...x.comments, newComment] }
-            : x
+      setFilteredPosts((p) =>
+        p.map((x) =>
+          x.id === postId ? { ...x, comments: [...x.comments, newComment] } : x
         )
       );
     } catch (err) {
@@ -168,8 +180,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getPost = (id: string) => posts.find((p) => p.id === id);
-
+  // Поиск
   const searchPosts = (query: string) => {
     if (!query.trim()) {
       setFilteredPosts(posts);
@@ -186,6 +197,57 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  // Вспомогательные для UI:
+  const ratePost = (postId: string, e: React.MouseEvent) => {
+    // тут можно получить текущего userId
+    const userId = 'anonymous'; // <-- замените логикой вашего auth
+    votePost(postId, userId).catch(console.error);
+  };
+
+  const reportPost = (postId: string) => {
+    console.log('Report post', postId);
+    // сюда вашу логику репорта (firestore, API и т.п.)
+  };
+
+  const sharePostDirect = (
+    platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
+    postId: string
+  ) => {
+    const url = `${window.location.origin}/?post=${postId}`;
+    let shareUrl = '';
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+          url
+        )}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          url
+        )}`;
+        break;
+      case 'telegram':
+        shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+          url
+        )}`;
+        break;
+    }
+    window.open(shareUrl, '_blank');
+  };
+
+  const copyPostLink = (postId: string) => {
+    const url = `${window.location.origin}/?post=${postId}`;
+    navigator.clipboard.writeText(url).catch(console.error);
+  };
+
+  const downloadPostImage = (postId: string) => {
+    // тут можно использовать html2canvas или ваш flow
+    console.log('Download image for', postId);
+  };
+
   return (
     <PostsContext.Provider
       value={{
@@ -199,9 +261,16 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         addPost,
         editPost,
         deletePost,
-        getPost,
+        getPost: (id) => posts.find((x) => x.id === id),
         votePost,
         addComment,
+
+        // новые методы
+        ratePost,
+        reportPost,
+        sharePostDirect,
+        copyPostLink,
+        downloadPostImage,
       }}
     >
       {children}
@@ -211,6 +280,6 @@ export function PostsProvider({ children }: { children: ReactNode }) {
 
 export function usePosts() {
   const ctx = useContext(PostsContext);
-  if (!ctx) throw new Error('usePosts must be inside PostsProvider');
+  if (!ctx) throw new Error('usePosts must be used within PostsProvider');
   return ctx;
 }

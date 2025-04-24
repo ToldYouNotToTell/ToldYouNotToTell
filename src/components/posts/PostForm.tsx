@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, FormEvent } from 'react';
-import { usePosts } from '@/contexts/PostsContext';
+import { Post } from '@/types/post';
 
 const CATEGORY_OPTIONS = [
   'Work','Love','Animals','Children','Society','Friendship','Betrayal','Secret',
@@ -13,8 +13,12 @@ const CATEGORY_OPTIONS = [
   'Scary','Jealousy','Happiness','Goodness','Social networks'
 ];
 
-export default function PostForm({ onClose }: { onClose: () => void }) {
-  const { addPost } = usePosts();
+type PostFormProps = {
+  onSubmit: (post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>) => Promise<void>;
+  onClose: () => void;
+};
+
+export default function PostForm({ onSubmit, onClose }: PostFormProps) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [content, setContent] = useState('');
@@ -28,15 +32,17 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
     e.preventDefault();
 
     if (title.length < 10 || content.length < 100) {
-      alert('Title ≥10 chars и Content ≥100 chars.');
+      alert('Title должно быть ≥10 символов и Content ≥100 символов.');
       return;
     }
 
-    // 👇 Здесь передаём только title, category, content
-    await addPost({ title, category, content });
+    await onSubmit({ title, category, content });
     onClose();
 
-    setTitle(''); setCategory(''); setContent('');
+    // обнуляем поля
+    setTitle('');
+    setCategory('');
+    setContent('');
   };
 
   return (

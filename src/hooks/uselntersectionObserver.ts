@@ -1,24 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+// src/hooks/useIntersectionObserver.ts
+import { useEffect, useRef } from "react";
 
 export function useIntersectionObserver(options?: IntersectionObserverInit) {
-  const [isIntersecting, setIsIntersecting] = useState(false);
-  const ref = useRef<HTMLElement>(null);
-
+  const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsIntersecting(entry.isIntersecting);
-    }, options);
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(([entry]) => { /*…*/ }, options);
+    obs.observe(ref.current);
+    return () => obs.disconnect();
   }, [options]);
-
-  return [ref, isIntersecting] as const;
+  return ref;
 }

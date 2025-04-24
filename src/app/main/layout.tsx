@@ -6,9 +6,11 @@ import {
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from "@solana/web3.js";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import PostsProvider from "@/contexts/PostsContext";
-import Web3Provider from "@/contexts/Web3Context";
+import { PostsProvider } from "@/contexts/PostsContext";
+import { Web3Provider } from "@/contexts/Web3Context";
 import "@/styles/globals.css";
+import { useMemo } from "react";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export default function RootLayout({

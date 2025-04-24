@@ -1,5 +1,5 @@
 import { useWeb3 } from "./useWeb3";
-import { getUserIP } from "../lib/utils/recovery";
+import { getUserIP } from "@/lib/utils/recovery";
 
 export const usePostActions = (post: any) => {
   const { walletAddress } = useWeb3();
