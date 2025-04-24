@@ -1,6 +1,6 @@
 "use client";
 
-import { BOOST_TIERS } from "@/lib/utils/boost";
+import { <BoostTiers> } from "@/components/ui/cards/BoostTiers";
 
 export default function BoostModal({
   onClose,
@@ -9,7 +9,7 @@ export default function BoostModal({
   onClose: () => void;
   onBoost: (amount: number) => void;
 }) {
-  const [selectedTier, setSelectedTier] = useState<keyof typeof BOOST_TIERS>(5);
+  const [selectedTier, setSelectedTier] = useState<keyof typeof BoostTiers>(5);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -20,7 +20,7 @@ export default function BoostModal({
         <h2>Boost Your Post</h2>
 
         <div className="boost-options">
-          {Object.entries(BOOST_TIERS).map(([amount, tier]) => (
+          {Object.entries(BoostTiers).map(([amount, tier]) => (
             <div
               key={amount}
               className={`boost-option ${

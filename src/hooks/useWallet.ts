@@ -1,27 +1,17 @@
-import { useEffect, useState } from "react";
-import { Web3ContextType } from "@/contexts/Web3Context";
+// src/hooks/useWallet.ts
+import { useWeb3 } from "@/contexts/Web3Context";
 
 export const useWallet = () => {
-  const [walletState, setWalletState] = useState<Web3ContextType>({
-    isConnected: false,
-    address: null,
-    connect: async () => {},
-    disconnect: () => {},
-  });
+  const { publicKey, isConnected, connectWallet, disconnectWallet } = useWeb3();
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (window.solana?.isConnected) {
-        setWalletState({
-          isConnected: true,
-          address: window.solana.publicKey.toString(),
-          connect: async () => {},
-          disconnect: () => window.solana.disconnect(),
-        });
-      }
-    };
-    checkConnection();
-  }, []);
-
-  return walletState;
+  return {
+    /** Флаг подключённости */
+    isConnected,
+    /** Адрес кошелька в виде строки или null */
+    address: publicKey?.toString() ?? null,
+    /** Функция подключения */
+    connect: connectWallet,
+    /** Функция отключения */
+    disconnect: disconnectWallet,
+  };
 };

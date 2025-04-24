@@ -1692,7 +1692,7 @@
     let isModerator = true; // Принудительно делаем пользователя модератором
 
     // Константы для бустов и наград
-    const BOOST_TIERS = {
+    const BoostTiers = {
       5: { decay: 0.3, min: 0, max: 5 },
       10: { decay: 0.25, min: 5, max: 10 },
       30: { decay: 0.15, min: 10, max: 30 },
@@ -1718,7 +1718,7 @@
     };
 
     const VISUAL_STYLES = {
-      BOOST_TIERS: {
+      BoostTiers: {
         5: { class: 'boost-basic', icon: '🌱', color: '#4CAF50' },
         10: { class: 'boost-start-plus', icon: '🧸', color: '#9C27B0' },
         30: { class: 'boost-advanced', icon: '🐇', color: '#2196F3' },
@@ -2034,9 +2034,9 @@
       
       boostedPosts.forEach(post => {
         const hoursPassed = (now - post.boostTime) / 3600000;
-        const decay = BOOST_TIERS[post.boostAmount]?.decay || 0.3;
+        const decay = BoostTiers[post.boostAmount]?.decay || 0.3;
         const boostWeight = Math.max(0, post.boostAmount * Math.pow(1 - decay, hoursPassed));
-        const hoursLeft = Math.floor((post.boostTime + (BOOST_TIERS[post.boostAmount]?.maxHours || 2) * 3600000 - now) / 3600000);
+        const hoursLeft = Math.floor((post.boostTime + (BoostTiers[post.boostAmount]?.maxHours || 2) * 3600000 - now) / 3600000);
         
         html += `
           <tr>
@@ -2171,7 +2171,7 @@
       posts.forEach(post => {
         if (post.boostAmount && post.boostTime) {
           const hoursPassed = (now - post.boostTime) / 3600000;
-          const decay = BOOST_TIERS[post.boostAmount]?.decay || 0.3;
+          const decay = BoostTiers[post.boostAmount]?.decay || 0.3;
           post.currentBoostWeight = Math.max(0, 
             post.boostAmount * Math.pow(1 - decay, hoursPassed));
           
@@ -2493,7 +2493,7 @@
         // Применение стилей буста
         let boostClass = '';
         if (post.boostAmount) {
-          boostClass = VISUAL_STYLES.BOOST_TIERS[post.boostAmount]?.class || '';
+          boostClass = VISUAL_STYLES.BoostTiers[post.boostAmount]?.class || '';
         }
         
         postElement.innerHTML = `
@@ -2812,7 +2812,7 @@ function sortPosts(type, period = null) {
       sortedPosts.forEach(post => {
         if (post.boostAmount && post.boostTime) {
           const hoursPassed = (now - post.boostTime) / 3600000;
-          const decay = BOOST_TIERS[post.boostAmount]?.decay || 0.3;
+          const decay = BoostTiers[post.boostAmount]?.decay || 0.3;
           post.currentBoostWeight = Math.max(0, 
             post.boostAmount * Math.pow(1 - decay, hoursPassed));
         }
@@ -2875,9 +2875,9 @@ function sortPosts(type, period = null) {
     // Группировать посты по уровням буста
     function groupByTiers(posts) {
       return posts.reduce((acc, post) => {
-        const tier = Object.keys(BOOST_TIERS).reverse().find(t => 
-          post.boostAmount >= BOOST_TIERS[t].min && 
-          post.boostAmount <= BOOST_TIERS[t].max);
+        const tier = Object.keys(BoostTiers).reverse().find(t => 
+          post.boostAmount >= BoostTiers[t].min && 
+          post.boostAmount <= BoostTiers[t].max);
         
         if (tier) {
           if (!acc[tier]) acc[tier] = [];
@@ -3428,7 +3428,7 @@ function sortPosts(type, period = null) {
       element.className = 'post';
       
       if (post.boostAmount) {
-        const style = VISUAL_STYLES.BOOST_TIERS[post.boostAmount];
+        const style = VISUAL_STYLES.BoostTiers[post.boostAmount];
         if (style) {
           element.classList.add(style.class);
           element.style.borderLeft = `4px solid ${style.color}`;

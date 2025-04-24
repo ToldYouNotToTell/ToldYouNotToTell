@@ -1,51 +1,48 @@
-"use client";
+// src/components/ui/cards/BoostTiers.tsx
+'use client';
 
-import { BOOST_TIERS } from "@/lib/utils/boost";
+import React from 'react';
+import type { BoostTier } from '@/lib/utils/boost';
+import { calculateBoostWeight, getBoostTier } from '@/lib/utils/boost';
 
-export default function BoostTiers() {
-  return (
-    <table className="boost-table">
-      <thead>
-        <tr>
-          <th>Tier</th>
-          <th>Price</th>
-          <th>Badge</th>
-          <th>Trending Time</th>
-          <th>Priority Decay</th>
-          <th>Perks</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(BOOST_TIERS).map(([amount, tier]) => (
-          <tr key={amount}>
-            <td>{tier.name}</td>
-            <td>${amount}</td>
-            <td className="boost-badge">{tier.icon}</td>
-            <td>{tier.max} hours</td>
-            <td>-{tier.decay * 100}%</td>
-            <td>{getTierPerks(Number(amount))}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+type BoostTiersProps = {
+  /** Изначальная сумма буста (USD) */
+  boostAmount: number;
+  /** Метка времени покупки буста (ms) */
+  boostStartTime: number;
+};
 
-function getTierPerks(amount: number) {
-  switch (amount) {
-    case 5:
-      return "Above all free posts";
-    case 10:
-      return "Longer visibility retention";
-    case 30:
-      return "High rotation priority";
-    case 50:
-      return "Stable promotion";
-    case 100:
-      return "Higher position in Trending";
-    case 250:
-      return "Maximum reach";
-    default:
-      return "";
+/**
+ * Компонент отображает текущее состояние буста:
+ * - Название уровня
+ * - Текущий вес
+ * - Диапазон позиций и decay-rate
+ */
+export function BoostTiers({ boostAmount, boostStartTime }: BoostTiersProps) {
+  const tier = getBoostTier(boostAmount);
+  const currentWeight = calculateBoostWeight(boostAmount, boostStartTime);
+
+  if (!tier) {
+    return (
+      <div className="boost-tier-card organic">
+        <h4>Organic</h4>
+        <p>No boost applied</p>
+      </div>
+    );
   }
+
+  return (
+    <div className="boost-tier-card">
+      <h4>{tier.name}</h4>
+      <p>
+        Current weight: <strong>{currentWeight.toFixed(2)}</strong> TNTT
+      </p>
+      <p>
+        Positions: {tier.trendingPositionRange![0]} –{' '}
+        {tier.trendingPositionRange![1]}
+      </p>
+      <p>Decay rate: {(tier.decayRate * 100).toFixed(1)}% / hour</p>
+      <p>Rotation every {tier.rotationIntervalMinutes} minutes</p>
+    </div>
+  );
 }

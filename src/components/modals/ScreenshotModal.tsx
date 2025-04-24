@@ -1,45 +1,52 @@
-import { useRef } from "react";
-import html2canvas from "html2canvas";
-import { useWeb3 } from "@/hooks/useWeb3";
-import { IconX } from "@tabler/icons-react"; // Альтернатива FaTimes
+// src/components/modals/ScreenshotModal.tsx
+'use client';
+
+import React, { useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { ReactIcon } from '@/components/ui/icons/ReactIcon';
+import type { Post } from '@/types/post';
+
+type ScreenshotModalProps = {
+  post: Post;
+  onClose: () => void;
+};
 
 export default function ScreenshotModal({
   post,
   onClose,
-}: {
-  post: Post;
-  onClose: () => void;
-}) {
-  const { captureRef, downloadImage } = useWeb3();
+}: ScreenshotModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
-    if (contentRef.current) {
-      await downloadImage(
-        contentRef.current,
-        `ToldYouNotToTell-post-${post.id}`
-      );
-    }
+    if (!contentRef.current) return;
+    // Рендерим элемент в канвас
+    const canvas = await html2canvas(contentRef.current);
+    // Создаём ссылку для скачивания
+    const link = document.createElement('a');
+    link.download = `ToldYouNotToTell-post-${post.id}.png`;
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
-    <div className="screenshot-preview">
-      <button className="close-screenshot" onClick={onClose}>
-        <IconX size={20} /> {/* Используем иконку из Tabler */}
-      </button>
-      <div className="screenshot-content" ref={contentRef}>
-        <div>
-          <h3>{post.title}</h3>
-          <p>{post.content}</p>
-          <div className="watermark">ToldYouNotToTell.com</div>
-        </div>
-      </div>
+    <div className="screenshot-modal">
       <button
-        className="download-btn"
-        onClick={handleDownload}
-        disabled={captureRef.isLoading}
+        className="close-screenshot"
+        onClick={onClose}
+        aria-label="Close screenshot modal"
       >
-        {captureRef.isLoading ? "Processing..." : "Download Image"}
+        <ReactIcon name="times" prefix="fas" title="Close" />
+      </button>
+
+      <div className="screenshot-content" ref={contentRef}>
+        {/* Здесь ваш компонент предпросмотра, например: */}
+        {/* <PostCard post={post} /> */}
+      </div>
+
+      <button className="download-screenshot" onClick={handleDownload}>
+        <ReactIcon name="download" prefix="fas" title="Download" /> Download
       </button>
     </div>
   );

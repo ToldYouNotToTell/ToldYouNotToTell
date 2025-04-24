@@ -19,3 +19,12 @@ export const useTheme = () => {
 
   return { theme, toggleTheme };
 };
+
+function useUniversalStorage(arg0: string): "light" | "dark" | null {
+  throw new Error("Function not implemented.");
+}
+
+
+function setValue(arg0: string, newTheme: string) {
+  throw new Error("Function not implemented.");
+}

@@ -1,47 +1,62 @@
-"use client";
+'use client';
 
-import { useModeration } from "@/hooks/useModeration";
-import { formatDate } from "@/lib/utils/date";
+import React from 'react';
+import { useModeration, Report } from '@/hooks/useModeration';
+import { formatDate } from '@/lib/utils/date';
+import { ReactIcon } from '@/components/ui/icons/ReactIcon';
 
 export default function ReportsPanel() {
-  const { reports, dismissReport, deleteReportedPost, isModerator } =
-    useModeration();
+  const {
+    reports,
+    dismissReport,
+    deleteReportedPost,
+    isModerator,
+  } = useModeration();
 
   if (!isModerator) return null;
 
   return (
-    <div className="reports-panel">
-      <h2>
+    <div id="reportsPanel" className="reports-panel">
+      <h2 className="reports-panel__header">
         Moderator Panel
         <button
-          onClick={() =>
-            (document.getElementById("reportsPanel")?.style.display = "none")
-          }
+          className="reports-panel__close"
+          onClick={() => {
+            const el = document.getElementById('reportsPanel');
+            if (el) el.style.display = 'none';
+          }}
+          aria-label="Close reports panel"
+          title="Close"
         >
-          <i className="fas fa-times"></i>
+          <ReactIcon name="times" prefix="fas" />
         </button>
       </h2>
 
       {reports.length === 0 ? (
         <p>No reports to review</p>
       ) : (
-        reports.map((report) => (
+        reports.map((report: Report) => (
           <div key={report.id} className="report-item">
-            <h4>Reported Post #{report.postId}</h4>
-            <p>{report.reason}</p>
-            <small>Reported on {formatDate(report.date)}</small>
+            <h4>Post #{report.postId} reported</h4>
+            <p>Reason: {report.reason}</p>
+            <p>By: {report.reporter}</p>
+            <p>Date: {formatDate(report.createdAt)}</p>
             <div className="report-actions">
               <button
-                className="report-dismiss"
-                onClick={() => dismissReport(report.id!)}
+                onClick={() => dismissReport(report.id)}
+                aria-label="Dismiss report"
+                title="Dismiss"
               >
-                Dismiss
+                <ReactIcon name="ban" prefix="fas" /> Dismiss
               </button>
               <button
-                className="report-delete"
-                onClick={() => deleteReportedPost(report.id!)}
+                onClick={() =>
+                  deleteReportedPost(report.id, report.postId)
+                }
+                aria-label="Delete reported post"
+                title="Delete Post"
               >
-                Delete Post
+                <ReactIcon name="trash" prefix="fas" /> Delete Post
               </button>
             </div>
           </div>

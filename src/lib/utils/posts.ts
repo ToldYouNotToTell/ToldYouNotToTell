@@ -80,6 +80,6 @@ function sortTrendingPosts(posts: Post[]): Post[] {
 
 function calculateBoostWeight(amount: number, time: number): number {
   const hoursPassed = (Date.now() - time) / 3600000;
-  const decay = BOOST_TIERS[amount]?.decay || 0.3;
+  const decay = BoostTiers[amount]?.decay || 0.3;
   return Math.max(0, amount * Math.pow(1 - decay, hoursPassed));
 }

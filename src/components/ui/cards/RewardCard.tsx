@@ -1,9 +1,10 @@
-// src/components/ui/cards/RewardsCard.tsx
+// src/components/ui/cards/RewardCard.tsx
 'use client';
 
 import React from 'react';
 import ClockIcon from '@/components/ui/icons/ClockIcon';
-import type DistributionItem from '@/types/rewards';
+
+import type { DistributionItem } from '@/types/rewards';
 
 export type RewardsCardProps = {
   /** Часы до следующего распределения */

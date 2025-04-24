@@ -1,3 +1,4 @@
+// src/contexts/Web3Context.tsx
 "use client";
 
 import {
@@ -10,14 +11,22 @@ import {
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { UniversalStorage } from "@/lib/api/universalStorage";
+import html2canvas from "html2canvas";
 
-interface Web3ContextType {
+export interface Web3ContextType {
+  /** Запрос на подключение кошелька */
   connectWallet: () => Promise<void>;
+  /** Отключение кошелька */
   disconnectWallet: () => void;
+  /** Публичный ключ (null, если не подключены) */
   publicKey: PublicKey | null;
+  /** true, если кошелёк подключён */
   isConnected: boolean;
+  /** Универсальное хранилище */
   storage: UniversalStorage;
+  /** Захват скриншота DOM-элемента */
   captureScreenshot: (element: HTMLElement, filename: string) => Promise<void>;
+  /** Сохранение текстового файла */
   downloadTextFile: (filename: string, content: string) => void;
 }
 
@@ -30,20 +39,18 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [wallet] = useState(new PhantomWalletAdapter());
 
   useEffect(() => {
-    wallet.on("connect", (publicKey: PublicKey) => {
-      setPublicKey(publicKey);
+    wallet.on("connect", (pubkey: PublicKey) => {
+      setPublicKey(pubkey);
       setConnection(new Connection(clusterApiUrl("mainnet-beta"), "confirmed"));
     });
-
     wallet.on("disconnect", () => {
       setPublicKey(null);
       setConnection(null);
     });
-
     return () => {
       wallet.disconnect();
     };
-  }, []);
+  }, [wallet]);
 
   const connectWallet = async () => {
     try {
@@ -72,7 +79,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       "data:text/plain;charset=utf-8," + encodeURIComponent(content)
     );
     element.setAttribute("download", filename);
-    element.style.display = "none";
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -97,8 +103,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
 export function useWeb3() {
   const context = useContext(Web3Context);
-  if (context === undefined) {
-    throw new Error("useWeb3 must be used within a Web3Provider");
+  if (!context) {
+    throw new Error("useWeb3 must be used within Web3Provider");
   }
   return context;
 }

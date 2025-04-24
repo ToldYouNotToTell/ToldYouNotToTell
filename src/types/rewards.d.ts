@@ -12,7 +12,7 @@ export interface RewardEligibility {
   /** Минимальное количество токенов, которое должен держать пользователь */
   minimumTokens: number; // e.g. 10000
   /** Период, за который начисляются награды */
-  period: RewardPeriod;  // пока – 'daily'
+  period: RewardPeriod;   // пока – 'daily'
 }
 
 /**
@@ -20,9 +20,9 @@ export interface RewardEligibility {
  */
 export interface RewardSources {
   /** Процент от налогов на транзакции (buy/sell) */
-  tokenTaxPercent: number;    // e.g. 50
+  tokenTaxPercent: number; // e.g. 50
   /** Процент от выделений из токеномики */
-  tokenomicsPercent: number;  // e.g. 15
+  tokenomicsPercent: number; // e.g. 15
 }
 
 /**
@@ -30,15 +30,27 @@ export interface RewardSources {
  */
 export interface RewardDistribution {
   /** 50% → топ-10 постов (по 5% каждому) */
-  topPostsPercent: number;    // 50
+  topPostsPercent: number;   // 50
   /** 20% → сжигание токенов */
-  tokenBurnPercent: number;   // 20
+  tokenBurnPercent: number;  // 20
   /** 10% → команда проекта */
-  teamPercent: number;        // 10
+  teamPercent: number;       // 10
   /** 15% → пул стейкинга */
-  stakingPoolPercent: number; // 15
-  /**  5% → казна (treasury) */
-  treasuryPercent: number;    // 5
+  stakingPoolPercent: number;// 15
+  /** 5% → казна (treasury) */
+  treasuryPercent: number;   // 5
+}
+
+/**
+ * Элемент структуры распределения, который рендерится в RewardsCard
+ */
+export interface DistributionItem {
+  /** Название пункта (например, "Top Posts") */
+  label: string;
+  /** Процент от общего пула (например, 5) */
+  percent: number;
+  /** Опциональное описание пункта */
+  description?: string;
 }
 
 /**
