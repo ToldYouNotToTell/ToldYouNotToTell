@@ -1,82 +1,92 @@
-"use client";
+// src/components/posts/PostForm.tsx
+'use client';
 
-import { useState } from "react";
-import { usePosts } from "@/hooks/usePosts";
+import React, { useState, useEffect, FormEvent } from 'react';
+import { usePosts } from '@/contexts/PostsContext';
 
-export default function PostForm({
-  postToEdit,
-  onClose,
-}: {
-  postToEdit?: Post;
-  onClose: () => void;
-}) {
-  const [title, setTitle] = useState(postToEdit?.title || "");
-  const [content, setContent] = useState(postToEdit?.content || "");
-  const [category, setCategory] = useState(postToEdit?.category || "");
-  const { addPost, editPost } = usePosts();
+const CATEGORY_OPTIONS = [
+  'Work','Love','Animals','Children','Society','Friendship','Betrayal','Secret',
+  'Dark past','Cheating','Dating','Fails','Shame','Guilt','Revenge','Breakdown',
+  'Deception','Mistakes','Pain','Repentance','Forbidden','Loneliness','Loss',
+  'Temptation','Funny','Risk','Hope','Private thoughts','Observations','Nature',
+  'Art','Study','Travel','Business','Mystic','Dreams','Hate','Family','Success',
+  'Scary','Jealousy','Happiness','Goodness','Social networks'
+];
 
-  const handleSubmit = (e: React.FormEvent) => {
+export default function PostForm({ onClose }: { onClose: () => void }) {
+  const { addPost } = usePosts();
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('');
+  const [content, setContent] = useState('');
+  const [titleCount, setTitleCount] = useState(0);
+  const [contentCount, setContentCount] = useState(0);
+
+  useEffect(() => { setTitleCount(title.length); }, [title]);
+  useEffect(() => { setContentCount(content.length); }, [content]);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (postToEdit) {
-      editPost(postToEdit.id, { title, content, category });
-    } else {
-      addPost({
-        id: Date.now(),
-        title,
-        content,
-        category,
-        voters: [],
-        date: new Date(),
-        comments: [],
-      });
+    if (title.length < 10 || content.length < 100) {
+      alert('Title ≥10 chars и Content ≥100 chars.');
+      return;
     }
 
+    // 👇 Здесь передаём только title, category, content
+    await addPost({ title, category, content });
     onClose();
+
+    setTitle(''); setCategory(''); setContent('');
   };
 
   return (
-    <div className="add-post-form">
-      <h2>{postToEdit ? "Edit Note" : "New Note"}</h2>
+    <div className="add-post-form" id="addPostForm">
+      <h2>New Note</h2>
       <form onSubmit={handleSubmit}>
+        {/* Title */}
         <div className="form-group">
-          <label>Title</label>
+          <label htmlFor="postTitle">Title</label>
           <input
+            id="postTitle"
+            type="text"
+            required minLength={10} maxLength={100}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            required
-            maxLength={100}
           />
-          <div>{title.length}/100</div>
+          <div id="titleCounter">{titleCount}/100</div>
         </div>
 
+        {/* Category */}
         <div className="form-group">
-          <label>Category</label>
+          <label htmlFor="postCategory">Category</label>
           <select
+            id="postCategory"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
             <option value="">Select a category</option>
-            {/* Опции категорий */}
+            {CATEGORY_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
           </select>
         </div>
 
+        {/* Content */}
         <div className="form-group">
-          <label>Content</label>
+          <label htmlFor="postContent">Content</label>
           <textarea
+            id="postContent"
+            required minLength={100} maxLength={650} rows={8}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            required
-            maxLength={650}
           />
-          <div>{content.length}/650</div>
+          <div id="contentCounter">{contentCount}/650</div>
         </div>
 
+        {/* Buttons */}
         <div className="form-actions">
-          <button type="button" onClick={onClose}>
-            Cancel
-          </button>
-          <button type="submit">{postToEdit ? "Save" : "Publish"}</button>
+          <button type="button" onClick={onClose}>Cancel</button>
+          <button type="submit" id="submitBtn">Publish</button>
         </div>
       </form>
     </div>

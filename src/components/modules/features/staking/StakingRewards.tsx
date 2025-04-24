@@ -52,30 +52,30 @@ const StakingRewards: FC<StakingRewardsProps> = ({
   }, [stakeAmount]);
 
   return (
-    <div className="staking-page">
+<div className="card p-6 rounded-lg shadow-md">
       <h1>Staking Dashboard</h1>
 
-      <div className="staking-section" style={{ marginBottom: 20 }}>
-        <h3>
-          <ClockIcon size={14} style={{ marginRight: 4 }} />
-          Daily Rewards
-        </h3>
+<div className="staking-section mb-5">
+<h3 className="flex items-center text-lg font-medium">
+  <ClockIcon size={14} className="mr-1" />
+  Daily Rewards
+</h3>
         <p>{dailyReward.toFixed(2)} TNTT / day</p>
       </div>
 
-      <div className="staking-section" style={{ marginBottom: 20 }}>
+<div className="staking-section mb-5">
         <h3>Current APY</h3>
         <p>{apy.toFixed(2)} %</p>
       </div>
 
-      <div className="staking-section" style={{ marginBottom: 20 }}>
+      <div className="staking-section mb-5">
         <h3>Your Stake</h3>
         <p>{stakeAmount.toLocaleString()} TYNTT</p>
-        <div style={{ marginTop: 10 }}>
-          <button onClick={onStake} style={{ marginRight: 8 }}>
+      <div className="mt-3 flex">
+        <button onClick={onStake} className="btn btn-primary mr-2">
             Stake
           </button>
-          <button onClick={onUnstake}>
+        <button onClick={onUnstake} className="btn btn-outline">
             Unstake
           </button>
         </div>

@@ -47,7 +47,7 @@ export const verifyCaptcha = onRequest(async (req, res) => {
         score: data.score,
         action,
         ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-        timestamp: new Date()
+        date: new Date().toISOString()
       });
 
       res.status(400).json({
@@ -64,7 +64,7 @@ export const verifyCaptcha = onRequest(async (req, res) => {
       score: data.score,
       action,
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-      timestamp: new Date()
+      date: new Date().toISOString()
     });
 
     // 4. Возвращаем результат

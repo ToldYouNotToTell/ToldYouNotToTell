@@ -26,12 +26,13 @@ export default function BackToTopButton() {
   };
 
   return (
-    <button
-      className="back-to-top"
-      onClick={scrollToTop}
-      style={{ display: isVisible ? "flex" : "none" }}
-    >
-      <i className="fas fa-arrow-up"></i>
-    </button>
+<button
+  type="button"
+  className={`back-to-top ${isVisible ? 'flex' : 'hidden'}`}
+  onClick={scrollToTop}
+  aria-label="Back to top"
+>
+  <i className="fas fa-arrow-up" aria-hidden="true"></i>
+</button>
   );
 }

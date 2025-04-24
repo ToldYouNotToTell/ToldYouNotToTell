@@ -55,7 +55,11 @@ body {
 /* Header */
 .header {
   background: var(--card-bg);
+  /* для Safari */
+  -webkit-backdrop-filter: blur(10px);
+  /* для остальных современных браузеров */
   backdrop-filter: blur(10px);
+  /* остальные ваши правила… */
 }
 
 /* Кнопки */

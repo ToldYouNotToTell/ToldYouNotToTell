@@ -13,7 +13,7 @@ export interface Comment {
     /** Идентификатор автора (IP или кошелек) */
     authorId?: string;
     /** Время создания комментария */
-    timestamp: Date;
+    date: Date;
     /** Флаг удалённого модератором */
     deleted?: boolean;
     /** Кто и когда отредактировал (если модерация) */

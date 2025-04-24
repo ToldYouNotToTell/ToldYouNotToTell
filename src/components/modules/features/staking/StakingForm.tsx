@@ -1,105 +1,85 @@
-"use client";
+// src/components/modules/features/staking/StakingForm.tsx
+'use client';
 
-import { useState } from "react";
-import { useWeb3 } from "@/hooks/useWeb3";
-import { STAKING_LEVELS } from "@/lib/utils/staking";
+import React, { useState, FormEvent } from 'react';
+import { useStaking } from '@/contexts/StakingContext';
+
+const STAKING_LEVELS: { amount: number; level: number }[] = [
+  { amount: 10000, level: 1 },
+  { amount: 25000, level: 2 },
+  { amount: 50000, level: 3 },
+  { amount: 100000, level: 4 },
+  { amount: 200000, level: 5 },
+];
 
 export default function StakingForm() {
-  const [amount, setAmount] = useState(10000);
-  const [duration, setDuration] = useState(30);
-  const { walletAddress, stakeTokens } = useWeb3();
+  const { stakeTokens, stakedAmount } = useStaking();
+  const [amount, setAmount] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const calculateRewards = () => {
-    const level = Object.keys(STAKING_LEVELS)
-      .reverse()
-      .find((threshold) => amount >= Number(threshold));
-    return level
-      ? STAKING_LEVELS[level].rewardMultiplier * amount * (duration / 365)
-      : 0;
-  };
-
-  const handleStake = async () => {
-    if (!walletAddress) {
-      alert("Please connect your wallet first");
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (amount < STAKING_LEVELS[0].amount) {
+      setError(`Minimum stake is ${STAKING_LEVELS[0].amount.toLocaleString()} TNTT.`);
       return;
     }
+    setError(null);
+    setLoading(true);
     try {
       await stakeTokens(amount);
-      alert(`Successfully staked ${amount} TNTT for ${duration} days`);
-    } catch (error) {
-      console.error("Staking error:", error);
-      alert("Staking failed");
+      setAmount(0);
+    } catch {
+      setError('Failed to stake tokens. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div id="stakingContent">
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <p>
-          Stake your TNTT tokens to earn rewards and increase your visibility
-        </p>
-      </div>
+    <div className="staking-page" id="stakingPage">
+      <h1>Stake TNTT Tokens</h1>
+      <form className="staking-form" onSubmit={handleSubmit}>
+        <p>Stake your TNTT tokens to earn rewards and increase your visibility</p>
 
-      <div style={{ marginBottom: "20px" }}>
-        <label>Amount to Stake (TNTT):</label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
-          min="1000"
-          step="1000"
-          style={{
-            width: "100%",
-            padding: "8px",
-            marginTop: "5px",
-            border: "1px solid var(--border-color)",
-            borderRadius: "4px",
-            background: "var(--search-bg)",
-            color: "var(--text-color)",
-          }}
-        />
-      </div>
+        <div className="form-group staking-amount">
+          <label htmlFor="stakeAmount">Amount to Stake:</label>
+          <input
+            id="stakeAmount"
+            type="number"
+            min={STAKING_LEVELS[0].amount}
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+          />
+        </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <label>Duration (days):</label>
-        <input
-          type="number"
-          value={duration}
-          onChange={(e) => setDuration(Number(e.target.value))}
-          min="1"
-          max="365"
-          style={{
-            width: "100%",
-            padding: "8px",
-            marginTop: "5px",
-            border: "1px solid var(--border-color)",
-            borderRadius: "4px",
-            background: "var(--search-bg)",
-            color: "var(--text-color)",
-          }}
-        />
-      </div>
+        <div className="staking-levels">
+          <h3>Staking Levels</h3>
+          <ul>
+            {STAKING_LEVELS.map(({ amount, level }) => (
+              <li key={level}>
+                {amount.toLocaleString()} TNTT: Level {level}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <h3>Estimated Rewards</h3>
-        <p>{calculateRewards().toFixed(2)} TNTT</p>
-        <small>Based on current staking level</small>
-      </div>
+        {error && <p className="form-error">{error}</p>}
 
-      <button
-        onClick={handleStake}
-        style={{
-          width: "100%",
-          padding: "10px",
-          background: "var(--staking-color)",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-      >
-        Stake Tokens
-      </button>
+        <button
+          type="submit"
+          className="stake-btn"
+          disabled={loading}
+        >
+          {loading ? 'Staking…' : 'Stake Tokens'}
+        </button>
+
+        {stakedAmount != null && (
+          <p className="staking-balance">
+            Your current staked balance: {stakedAmount.toLocaleString()} TNTT
+          </p>
+        )}
+      </form>
     </div>
-  );
+);
 }

@@ -14,8 +14,8 @@ export type PostMetadataProps = {
  * Показывает метаданные поста: категорию и дату создания.
  */
 export default function PostMetadata({ post }: PostMetadataProps) {
-  const { category, timestamp } = post;
-  const date = new Date(timestamp);
+  const { category, date } = post;
+  const date = new Date(date);
 
   const formattedDate = date.toLocaleString('ru-RU', {
     day: '2-digit',

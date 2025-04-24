@@ -1,5 +1,4 @@
 // src/lib/api/universalStorage.ts
-
 import {
   collection,
   doc,
@@ -13,9 +12,9 @@ import {
   orderBy,
   limit,
   arrayRemove,
+  arrayUnion,             // ← импорт для добавления в массив
 } from 'firebase/firestore';
-
-import type { Post } from '@/types/post';
+import type { Post, Comment } from '@/types/post';
 import { db } from '@/lib/firebase';
 
 export class UniversalStorage {
@@ -29,9 +28,9 @@ export class UniversalStorage {
 
   async getPosts(): Promise<Post[]> {
     const snaps = await getDocs(
-      query(this.collectionRef, orderBy('timestamp', 'desc'), limit(100))
+      query(this.collectionRef, orderBy('date', 'desc'), limit(100))
     );
-    return snaps.docs.map(doc => doc.data() as Post);
+    return snaps.docs.map(d => d.data() as Post);
   }
 
   async addPost(post: Omit<Post, 'id'>): Promise<string> {
@@ -52,5 +51,21 @@ export class UniversalStorage {
   async removeTagFromPost(id: string, tag: string): Promise<void> {
     const docRef = doc(this.collectionRef, id);
     await updateDoc(docRef, { tags: arrayRemove(tag) });
+  }
+
+  /** Добавить комментарий в поле comments (массив) */
+  async addComment(postId: string, comment: Comment): Promise<void> {
+    const docRef = doc(this.collectionRef, postId);
+    await updateDoc(docRef, {
+      comments: arrayUnion(comment),
+    });
+  }
+
+  /** Удалить комментарий из поля comments (массив) */
+  async removeComment(postId: string, comment: Comment): Promise<void> {
+    const docRef = doc(this.collectionRef, postId);
+    await updateDoc(docRef, {
+      comments: arrayRemove(comment),
+    });
   }
 }

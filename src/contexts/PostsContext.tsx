@@ -1,21 +1,23 @@
-"use client";
+'use client';
 
-import {
+import React, {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
-} from "react";
-import { Post } from "@/types/post";
-import { UniversalStorage } from "@/lib/api/universalStorage";
+} from 'react';
+import { Post } from '@/types/post';
+import { UniversalStorage } from '@/lib/api/universalStorage';
 
 type PostsContextType = {
   posts: Post[];
   loading: boolean;
   error: string | null;
+  searchPosts: (query: string) => void;
+  // Здесь разрешаем передавать только title, category и content
   addPost: (
-    post: Omit<Post, "id" | "date" | "voters" | "comments">
+    post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
   ) => Promise<void>;
   editPost: (id: string, updates: Partial<Post>) => Promise<void>;
   deletePost: (id: string) => Promise<void>;
@@ -28,33 +30,34 @@ const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
 export function PostsProvider({ children }: { children: ReactNode }) {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const storage = new UniversalStorage();
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    async function fetchPosts() {
       try {
         setLoading(true);
-        const postsData = await storage.getPosts();
-        setPosts(postsData);
+        const all = await storage.getPosts();
+        setPosts(all);
+        setFilteredPosts(all);
       } catch (err) {
-        setError("Failed to load posts");
         console.error(err);
+        setError('Failed to load posts');
       } finally {
         setLoading(false);
       }
-    };
-
+    }
     fetchPosts();
-  }, []);
+  }, [storage]);
 
   const addPost = async (
-    post: Omit<Post, "id" | "date" | "voters" | "comments">
+    post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
   ) => {
     try {
       setLoading(true);
-      const newPost = {
+      const newPost: Post = {
         ...post,
         id: Date.now().toString(),
         date: new Date().toISOString(),
@@ -64,9 +67,10 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       };
       await storage.addPost(newPost);
       setPosts((prev) => [newPost, ...prev]);
+      setFilteredPosts((prev) => [newPost, ...prev]);
     } catch (err) {
-      setError("Failed to add post");
       console.error(err);
+      setError('Failed to add post');
     } finally {
       setLoading(false);
     }
@@ -77,11 +81,14 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       await storage.updatePost(id, updates);
       setPosts((prev) =>
-        prev.map((post) => (post.id === id ? { ...post, ...updates } : post))
+        prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+      );
+      setFilteredPosts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
       );
     } catch (err) {
-      setError("Failed to update post");
       console.error(err);
+      setError('Failed to update post');
     } finally {
       setLoading(false);
     }
@@ -91,10 +98,11 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       await storage.deletePost(id);
-      setPosts((prev) => prev.filter((post) => post.id !== id));
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      setFilteredPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
-      setError("Failed to delete post");
       console.error(err);
+      setError('Failed to delete post');
     } finally {
       setLoading(false);
     }
@@ -103,30 +111,32 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   const votePost = async (postId: string, userId: string) => {
     try {
       setLoading(true);
-      await storage.votePost(postId, userId);
+      const p = posts.find((x) => x.id === postId);
+      if (!p) throw new Error('Post not found');
+      const has = p.voters.includes(userId);
+      const voters = has
+        ? p.voters.filter((id) => id !== userId)
+        : [...p.voters, userId];
+      await storage.updatePost(postId, { voters });
       setPosts((prev) =>
-        prev.map((post) => {
-          if (post.id === postId) {
-            const hasVoted = post.voters.includes(userId);
-            return {
-              ...post,
-              voters: hasVoted
-                ? post.voters.filter((id) => id !== userId)
-                : [...post.voters, userId],
-            };
-          }
-          return post;
-        })
+        prev.map((x) => (x.id === postId ? { ...x, voters } : x))
+      );
+      setFilteredPosts((prev) =>
+        prev.map((x) => (x.id === postId ? { ...x, voters } : x))
       );
     } catch (err) {
-      setError("Failed to vote");
       console.error(err);
+      setError('Failed to vote');
     } finally {
       setLoading(false);
     }
   };
 
-  const addComment = async (postId: string, text: string, userId: string) => {
+  const addComment = async (
+    postId: string,
+    text: string,
+    userId: string
+  ) => {
     try {
       setLoading(true);
       const newComment = {
@@ -137,32 +147,55 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       };
       await storage.addComment(postId, newComment);
       setPosts((prev) =>
-        prev.map((post) => {
-          if (post.id === postId) {
-            return {
-              ...post,
-              comments: [...post.comments, newComment],
-            };
-          }
-          return post;
-        })
+        prev.map((x) =>
+          x.id === postId
+            ? { ...x, comments: [...x.comments, newComment] }
+            : x
+        )
+      );
+      setFilteredPosts((prev) =>
+        prev.map((x) =>
+          x.id === postId
+            ? { ...x, comments: [...x.comments, newComment] }
+            : x
+        )
       );
     } catch (err) {
-      setError("Failed to add comment");
       console.error(err);
+      setError('Failed to add comment');
     } finally {
       setLoading(false);
     }
   };
 
-  const getPost = (id: string) => posts.find((post) => post.id === id);
+  const getPost = (id: string) => posts.find((p) => p.id === id);
+
+  const searchPosts = (query: string) => {
+    if (!query.trim()) {
+      setFilteredPosts(posts);
+      return;
+    }
+    const q = query.toLowerCase();
+    setFilteredPosts(
+      posts.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.orderNumber.toString().includes(q) ||
+          p.recoveryCode?.toLowerCase().includes(q)
+      )
+    );
+  };
 
   return (
     <PostsContext.Provider
       value={{
-        posts,
+        posts:
+          filteredPosts.length > 0 || filteredPosts.length !== posts.length
+            ? filteredPosts
+            : posts,
         loading,
         error,
+        searchPosts,
         addPost,
         editPost,
         deletePost,
@@ -177,9 +210,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
 }
 
 export function usePosts() {
-  const context = useContext(PostsContext);
-  if (context === undefined) {
-    throw new Error("usePosts must be used within a PostsProvider");
-  }
-  return context;
+  const ctx = useContext(PostsContext);
+  if (!ctx) throw new Error('usePosts must be inside PostsProvider');
+  return ctx;
 }

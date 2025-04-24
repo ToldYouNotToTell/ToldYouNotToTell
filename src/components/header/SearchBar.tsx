@@ -1,16 +1,30 @@
-"use client";
+// src/components/header/SearchBar.tsx
+'use client';
 
-import { usePosts } from "@/hooks/usePosts";
+import React, { ChangeEvent } from 'react';
 
-export default function SearchBar() {
-  const { searchPosts } = usePosts();
+interface SearchBarProps {
+  placeholder?: string;
+  value?: string;
+  onSearch: (query: string) => void;
+}
+
+export default function SearchBar({
+  placeholder = 'Search...',
+  value = '',
+  onSearch
+}: SearchBarProps) {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onSearch(e.target.value);
+  };
 
   return (
     <input
       type="text"
       className="search-box"
-      placeholder="Search by number, title or recovery code..."
-      onChange={(e) => searchPosts(e.target.value)}
+      placeholder={placeholder}
+      value={value}
+      onChange={handleChange}
     />
   );
 }

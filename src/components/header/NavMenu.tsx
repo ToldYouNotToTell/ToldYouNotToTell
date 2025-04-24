@@ -1,27 +1,54 @@
-"use client";
+// src/components/header/NavMenu.tsx
+'use client';
 
-import { usePosts } from "@/hooks/usePosts";
+import React from 'react';
 
-export default function NavMenu() {
-  const { showOnlyMyPosts, toggleMyPostsFilter } = usePosts();
-
-  return (
-    <div className="nav-menu" id="navMenu">
-      <a href="#" onClick={toggleMyPostsFilter}>
-        {showOnlyMyPosts ? "All Posts" : "My Posts"}
-      </a>
-      <a href="/promotion">Promotion</a>
-      <a href="/rewards">My Rewards</a>
-      <a href="/staking">Stake TNTT</a>
-      <a href="#" onClick={showFAQ}>
-        FAQ
-      </a>
-    </div>
-  );
+export interface NavMenuProps {
+  visible: boolean;
+  onClose: () => void;
+  onMyPosts: () => void;
+  onCurrentBoosts: () => void;
+  onMyRewards: () => void;
+  onPromotion: () => void;
+  onFAQ: () => void;
+  onModeratorPanel: () => void;
 }
 
-function showFAQ() {
-  alert(
-    "FAQ: 1. How to recover posts? Use your recovery code in the search box..."
+export default function NavMenu({
+  visible,
+  onClose,
+  onMyPosts,
+  onCurrentBoosts,
+  onMyRewards,
+  onPromotion,
+  onFAQ,
+  onModeratorPanel
+}: NavMenuProps) {
+  return (
+    <div className={`nav-menu${visible ? ' show' : ''}`} id="navMenu">
+      <a href="#" onClick={(e) => { e.preventDefault(); onMyPosts(); onClose(); }} id="navMenuMyPosts">
+        My Posts
+      </a>
+      <a href="#" onClick={(e) => { e.preventDefault(); onCurrentBoosts(); onClose(); }}>
+        Current Boosts
+      </a>
+      <a href="#" onClick={(e) => { e.preventDefault(); onMyRewards(); onClose(); }}>
+        My Rewards
+      </a>
+      <a href="#" onClick={(e) => { e.preventDefault(); onPromotion(); onClose(); }}>
+        Promotion
+      </a>
+      <a href="#" onClick={(e) => { e.preventDefault(); onFAQ(); onClose(); }}>
+        FAQ
+      </a>
+      <a
+        href="#"
+        onClick={(e) => { e.preventDefault(); onModeratorPanel(); onClose(); }}
+        id="moderatorLink"
+        className="moderator-link"
+      >
+        Moderator Panel
+      </a>
+    </div>
   );
 }

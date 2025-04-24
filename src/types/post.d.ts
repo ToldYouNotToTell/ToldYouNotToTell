@@ -1,4 +1,13 @@
-interface Post {
+// src/types/post.d.ts
+
+export interface Comment {
+  id: string;
+  text: string;
+  authorId: string;
+  date: string;
+}
+
+export interface Post {
   id: string;
   title: string;
   content: string;
@@ -15,11 +24,4 @@ interface Post {
   moderatedBy?: string;
   moderatorNote?: string;
   recoveryCode?: string;
-}
-
-interface Comment {
-  id: string;
-  text: string;
-  authorId: string;
-  date: string;
 }

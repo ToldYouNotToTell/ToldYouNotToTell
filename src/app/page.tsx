@@ -1,37 +1,80 @@
-"use client";
+// src/app/page.tsx
+'use client';
 
-import { PostList } from "@/components/posts/PostList";
-import { SortControls } from "@/components/posts/SortControls";
-import { StakingRewards } from "@/components/StakingRewards";
-import { usePosts } from "@/hooks/usePosts";
-import { useWeb3 } from "@/hooks/useWeb3";
+import React, { useEffect, useState } from 'react';
+import Header from '@/components/header/Header';
+import RewardsInfo from '@/components/modules/features/rewards/RewardsInfo';
+import SortControls from '@/components/SortControls';
+import PostList from '@/components/posts/PostList';
+import BackToTopButton from '@/components/ui/buttons/BackToTopButton';
+import { usePosts } from '@/contexts/PostsContext';
 
-export default function Home() {
-  const { posts, loading, sortPosts } = usePosts();
-  const { isConnected, connectWallet } = useWeb3();
+export default function HomePage() {
+  const { posts, loading, searchPosts } = usePosts();
+  const [totalPool, setTotalPool] = useState<number>(0);
+  const [nextDistribution, setNextDistribution] = useState<string>('');
+
+  // Рассчитываем время до следующего распределения и примерный пул
+  useEffect(() => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const diffMs = tomorrow.getTime() - now.getTime();
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    setNextDistribution(`${hours}h ${minutes}m`);
+    setTotalPool(1000); // <- здесь можно заменить на реальное значение из контекста или API
+  }, []);
+
+  const handleSort = (type: 'new' | 'top' | 'random' | 'trending') => {
+    // TODO: вызвать сортировку из контекста, например sortPosts(type)
+    console.log('Sort by', type);
+  };
+
+  const handleAddPost = () => {
+    // TODO: показать форму добавления поста
+    console.log('Open add-post form');
+  };
+  const handleToggleNav = () => {
+    // TODO: открыть/закрыть навигацию
+    console.log('Toggle nav menu');
+  };
+  const handleToggleTheme = () => {
+    // TODO: переключить тему
+    console.log('Toggle theme');
+  };
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Anonymous Confessions</h1>
-        {!isConnected && (
-          <button
-            onClick={connectWallet}
-            className="bg-primary text-white px-4 py-2 rounded-lg"
-          >
-            Connect Wallet
-          </button>
-        )}
-      </div>
+    <main className="post-container">
+      {/* Хедер */}
+      <Header
+        onSearch={searchPosts}
+        onAddPost={handleAddPost}
+        onToggleNav={handleToggleNav}
+        onToggleTheme={handleToggleTheme}
+      />
 
-      <StakingRewards />
-      <SortControls onSort={sortPosts} />
+      {/* Инфо о пуле наград */}
+      <RewardsInfo
+        totalPool={totalPool}
+        nextDistribution={nextDistribution}
+      />
 
+      {/* Контролы сортировки */}
+      <SortControls onSort={handleSort} />
+
+      {/* Список постов или индикатор загрузки */}
       {loading ? (
-        <div className="text-center py-12">Loading posts...</div>
+        <div>Loading posts…</div>
       ) : (
-        <PostList posts={posts} />
+        <PostList posts={posts} onSearch={searchPosts} />
       )}
+
+      {/* Кнопка “Наверх” */}
+      <BackToTopButton />
     </main>
   );
 }

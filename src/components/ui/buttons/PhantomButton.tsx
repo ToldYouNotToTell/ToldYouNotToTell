@@ -1,48 +1,28 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { connectPhantom } from "@/lib/uiActions";
-import { useWeb3 } from "@/hooks/useWeb3";
+// src/components/ui/buttons/PhantomButton.tsx
+'use client';
 
+import React from 'react';
+import { useWeb3 } from '@/hooks/useWeb3';
+
+/**
+ * Кнопка подключения Phantom Wallet.
+ * — При клике вызывает connectWallet из хука useWeb3.
+ * — Если кошелёк подключён, отображает короткий адрес.
+ */
 export default function PhantomButton() {
-  const { walletAddress, isConnected } = useWeb3();
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    if (window.solana?.isPhantom) {
-      console.log("Phantom Wallet is installed");
-    }
-  }, []);
-
-  const handleClick = async () => {
-    await connectPhantom();
-  };
-
-  if (!isConnected) {
-    return (
-      <button
-        className="phantom-btn"
-        onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <i className="fas fa-wallet"></i> Connect
-      </button>
-    );
-  }
+  const { connectWallet, walletAddress, isConnected } = useWeb3();
 
   return (
     <button
+      type="button"
       className="phantom-btn"
-      style={{
-        background: isHovered
-          ? "linear-gradient(135deg, #14F195 0%, #9945FF 100%)"
-          : "linear-gradient(135deg, #9945FF 0%, #14F195 100%)",
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onClick={connectWallet}
     >
-      <i className="fas fa-wallet"></i>{" "}
-      {`${walletAddress?.slice(0, 4)}...${walletAddress?.slice(-4)}`}
+      <i className="fas fa-wallet" />
+      {' '}
+      {isConnected
+        ? `${walletAddress?.slice(0, 4)}…${walletAddress?.slice(-4)}`
+        : 'Connect'}
     </button>
   );
 }

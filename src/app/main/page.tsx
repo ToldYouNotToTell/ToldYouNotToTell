@@ -1,6 +1,6 @@
 import Header from "@/components/header/Header";
 import PostList from "@/components/posts/PostList";
-import SortControls from "@/components/ui/SortControls";
+import SortControls from "@/components/posts/SortControls";
 import PostForm from "@/components/posts/PostForm";
 import BackToTopButton from "@/components/ui/buttons/BackToTopButton";
 import { usePosts } from "@/hooks/usePosts";
@@ -18,7 +18,7 @@ export default function Home() {
       <PostList posts={posts} onEdit={editPost} onDelete={deletePost} />
 
       <PostForm onSubmit={addPost} />
-      <BackToTopButton />
+      <BackButton />
     </div>
   );
 }

@@ -1,4 +1,6 @@
-interface Report {
+// src/types/moderation.d.ts
+
+export interface Report {
   id: number;
   postId: number;
   reason: string;
@@ -7,11 +9,11 @@ interface Report {
   status: "pending" | "resolved";
 }
 
-interface ModerationAction {
+export interface ModerationAction {
   id: number;
   postId: number;
   moderator: string;
   action: "delete" | "edit" | "dismiss";
-  timestamp: string;
+  date: string;
   note?: string;
 }

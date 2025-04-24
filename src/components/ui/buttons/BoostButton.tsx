@@ -2,7 +2,7 @@
 
 import { useWeb3 } from "@/hooks/useWeb3";
 import { useState } from "react";
-import BoostModal from "../modals/BoostModal";
+import BoostModal from "@/components/modals/BoostModal";
 
 export default function BoostButton({ postId }: { postId: number }) {
   const { walletAddress, boostPost } = useWeb3();
