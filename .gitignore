@@ -1,0 +1,6 @@
+# Firebase Functions
+/functions/node_modules
+/functions/.env
+
+# Переменные окружения Next.js
+.env*
