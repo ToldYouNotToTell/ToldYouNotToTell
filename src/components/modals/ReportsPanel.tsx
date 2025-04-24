@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import { useModeration } from '@/hooks/useModeration';
-import { formatDate } from '@/lib/utils/date';
+import { useModeration } from "@/hooks/useModeration";
+import { formatDate } from "@/lib/utils/date";
 
 export default function ReportsPanel() {
-  const { reports, dismissReport, deleteReportedPost, isModerator } = useModeration();
+  const { reports, dismissReport, deleteReportedPost, isModerator } =
+    useModeration();
 
   if (!isModerator) return null;
 
   return (
     <div className="reports-panel">
       <h2>
-        Moderator Panel 
-        <button onClick={() => document.getElementById('reportsPanel')?.style.display = 'none'}>
+        Moderator Panel
+        <button
+          onClick={() =>
+            (document.getElementById("reportsPanel")?.style.display = "none")
+          }
+        >
           <i className="fas fa-times"></i>
         </button>
       </h2>
-      
+
       {reports.length === 0 ? (
         <p>No reports to review</p>
       ) : (
@@ -26,13 +31,13 @@ export default function ReportsPanel() {
             <p>{report.reason}</p>
             <small>Reported on {formatDate(report.date)}</small>
             <div className="report-actions">
-              <button 
+              <button
                 className="report-dismiss"
                 onClick={() => dismissReport(report.id!)}
               >
                 Dismiss
               </button>
-              <button 
+              <button
                 className="report-delete"
                 onClick={() => deleteReportedPost(report.id!)}
               >

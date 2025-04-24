@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Post } from '@/types/post';
-import { readingTime } from '@/lib/utils/text';
-import { formatDate } from '@/lib/utils/date';
+import { Post } from "@/types/post";
+import { readingTime } from "@/lib/utils/text";
+import { formatDate } from "@/lib/utils/date";
 
 export default function PostStats({ post }: { post: Post }) {
   return (

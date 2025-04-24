@@ -1,12 +1,21 @@
-import { Post } from '@/types/post';
+import { Post } from "@/types/post";
 
 export function initializeDefaultPosts(): Post[] {
-  const randomIPs = Array(25).fill().map(() => 
-    `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
-  );
-  
-  const randomDate = (start: Date, end: Date) => 
-    new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  const randomIPs = Array(25)
+    .fill()
+    .map(
+      () =>
+        `${Math.floor(Math.random() * 255)}.${Math.floor(
+          Math.random() * 255
+        )}.${Math.floor(Math.random() * 255)}.${Math.floor(
+          Math.random() * 255
+        )}`
+    );
+
+  const randomDate = (start: Date, end: Date) =>
+    new Date(
+      start.getTime() + Math.random() * (end.getTime() - start.getTime())
+    );
 
   const randomComments = () => {
     const comments = [
@@ -27,7 +36,7 @@ export function initializeDefaultPosts(): Post[] {
       comments: randomComments(),
       orderNumber: 1,
       authorIP: randomIPs[0],
-      category: "Dating"
+      category: "Dating",
     },
     // ... другие тестовые посты
   ];
@@ -36,14 +45,16 @@ export function initializeDefaultPosts(): Post[] {
 }
 
 export function sortPosts(posts: Post[], type: string): Post[] {
-  switch(type) {
-    case 'new':
+  switch (type) {
+    case "new":
       return [...posts].sort((a, b) => b.date.getTime() - a.date.getTime());
-    case 'top':
-      return [...posts].sort((a, b) => (b.voters?.length || 0) - (a.voters?.length || 0));
-    case 'random':
+    case "top":
+      return [...posts].sort(
+        (a, b) => (b.voters?.length || 0) - (a.voters?.length || 0)
+      );
+    case "random":
       return [...posts].sort(() => Math.random() - 0.5);
-    case 'trending':
+    case "trending":
       return sortTrendingPosts(posts);
     default:
       return posts;
@@ -53,11 +64,11 @@ export function sortPosts(posts: Post[], type: string): Post[] {
 function sortTrendingPosts(posts: Post[]): Post[] {
   const now = Date.now();
   return posts
-    .map(post => ({
+    .map((post) => ({
       ...post,
-      boostWeight: post.boostAmount 
+      boostWeight: post.boostAmount
         ? calculateBoostWeight(post.boostAmount, post.boostTime || now)
-        : 0
+        : 0,
     }))
     .sort((a, b) => {
       if (a.boostWeight !== b.boostWeight) {

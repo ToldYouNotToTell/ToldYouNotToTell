@@ -7,17 +7,18 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "serve:functions": "npm --prefix functions run serve",
-        "deploy:functions": "npm --prefix functions run deploy"
+        "lint:fix": "next lint --fix",
+        "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md,json}\"",
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@solana/wallet-adapter-base": "^0.9.26",
         "@solana/wallet-adapter-phantom": "^0.9.27",
         "@solana/wallet-adapter-react": "^0.15.38",
-        "@solana/wallet-adapter-wallets": "^0.19.20",
+        "@solana/wallet-adapter-wallets": "^0.19.36",
         "@solana/web3.js": "^1.98.1",
-        "ethers": "^6.13.5",
-        "firebase": "^10.14.1",
+        "ethers": "^5.7.2",
+        "firebase": "^9.22.2",
         "html2canvas": "^1.4.1",
         "next": "^13.4.19",
         "react": "^18.2.0",
@@ -29,11 +30,17 @@
         "@types/node": "^20.8.7",
         "@types/react": "^18.2.21",
         "@types/react-dom": "^18.2.7",
-        "autoprefixer": "^10.4.21",
+        "autoprefixer": "^10.4.15",
         "eslint": "^8.52.0",
         "eslint-config-next": "^13.4.19",
-        "postcss": "^8.5.3",
-        "tailwindcss": "^3.4.17",
+        "postcss": "^8.4.29",
+        "prettier": "^2.8.8",
+        "tailwindcss": "^3.3.3",
         "typescript": "^5.2.2"
+    },
+    "overrides": {
+        "react-qr-reader": {
+            "react-dom": "^18.2.0"
+        }
     }
 }

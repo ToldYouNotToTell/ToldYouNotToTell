@@ -1,10 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 export default function EmptyState({
   icon,
   title,
   description,
-  action
+  action,
 }: {
   icon: ReactNode;
   title: string;

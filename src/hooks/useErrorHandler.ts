@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export function useErrorHandler() {
   const [error, setError] = useState<Error | null>(null);
@@ -19,11 +19,12 @@ export function useErrorHandler() {
     error,
     handleError,
     clearError,
-    ErrorDisplay: () => error && (
-      <div className="error-message">
-        <p>{error.message}</p>
-        <button onClick={clearError}>Dismiss</button>
-      </div>
-    )
+    ErrorDisplay: () =>
+      error && (
+        <div className="error-message">
+          <p>{error.message}</p>
+          <button onClick={clearError}>Dismiss</button>
+        </div>
+      ),
   };
 }

@@ -1,6 +1,6 @@
-'use client';
-import React from 'react';
-import { downloadRecoveryCode } from '@/lib/uiActions';
+"use client";
+import React from "react";
+import { downloadRecoveryCode } from "@/lib/uiActions";
 
 export default function DownloadRecoveryCodeButton() {
   return (

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { FaCopy, FaDownload } from 'react-icons/fa';
+import { useState } from "react";
+import { FaCopy, FaDownload } from "react-icons/fa";
 
-export default function RecoveryModal({ 
+export default function RecoveryModal({
   code,
   onClose,
-  onDownload
+  onDownload,
 }: {
   code: string;
   onClose: () => void;
@@ -25,8 +25,9 @@ export default function RecoveryModal({
         <div className="info-tooltip">
           <i className="fas fa-info-circle"></i>
           <span className="tooltip-text">
-            If you clear your browser cache or access from another device, this code will restore access to your anonymous posts. 
-            Write it down or save it in a safe place!
+            If you clear your browser cache or access from another device, this
+            code will restore access to your anonymous posts. Write it down or
+            save it in a safe place!
           </span>
         </div>
       </h2>
@@ -41,7 +42,9 @@ export default function RecoveryModal({
         <button type="button" onClick={onDownload}>
           <FaDownload /> Download
         </button>
-        <button type="button" onClick={onClose}>Close</button>
+        <button type="button" onClick={onClose}>
+          Close
+        </button>
       </div>
     </div>
   );

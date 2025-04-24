@@ -1,5 +1,5 @@
-import RewardsInfo from '@/components/modules/features/rewards/RewardsInfo';
-import BackButton from '@/components/ui/buttons/BackButton';
+import RewardsInfo from "@/components/modules/features/rewards/RewardsInfo";
+import BackButton from "@/components/ui/buttons/BackButton";
 
 export default function RewardsPage() {
   return (

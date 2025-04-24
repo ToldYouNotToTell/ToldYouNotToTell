@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { ReactNode, useState, useRef } from 'react';
-import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut';
+import { ReactNode, useState, useRef } from "react";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 
 export default function Tooltip({
   content,
   children,
-  position = 'top',
-  shortcut
+  position = "top",
+  shortcut,
 }: {
   content: string | ReactNode;
   children: ReactNode;
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  position?: "top" | "bottom" | "left" | "right";
   shortcut?: string;
 }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -23,7 +23,7 @@ export default function Tooltip({
   }
 
   return (
-    <div 
+    <div
       className="tooltip-container"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}

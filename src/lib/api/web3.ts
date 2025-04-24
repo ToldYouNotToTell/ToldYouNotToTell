@@ -1,6 +1,6 @@
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
-const SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com';
+const SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com";
 const connection = new Connection(SOLANA_RPC_URL);
 
 export async function sendTransaction(
@@ -16,10 +16,10 @@ export async function sendTransaction(
     // В реальном приложении подпись через Phantom Wallet
     const signedTx = await window.solana.signTransaction(transaction);
     const txId = await connection.sendRawTransaction(signedTx.serialize());
-    
+
     return txId;
   } catch (error) {
-    console.error('Transaction error:', error);
+    console.error("Transaction error:", error);
     throw error;
   }
 }

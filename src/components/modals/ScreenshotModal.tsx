@@ -1,11 +1,11 @@
-import { useRef } from 'react';
-import html2canvas from 'html2canvas';
-import { useWeb3 } from '@/hooks/useWeb3';
-import { IconX } from '@tabler/icons-react'; // Альтернатива FaTimes
+import { useRef } from "react";
+import html2canvas from "html2canvas";
+import { useWeb3 } from "@/hooks/useWeb3";
+import { IconX } from "@tabler/icons-react"; // Альтернатива FaTimes
 
-export default function ScreenshotModal({ 
+export default function ScreenshotModal({
   post,
-  onClose 
+  onClose,
 }: {
   post: Post;
   onClose: () => void;
@@ -15,7 +15,10 @@ export default function ScreenshotModal({
 
   const handleDownload = async () => {
     if (contentRef.current) {
-      await downloadImage(contentRef.current, `ToldYouNotToTell-post-${post.id}`);
+      await downloadImage(
+        contentRef.current,
+        `ToldYouNotToTell-post-${post.id}`
+      );
     }
   };
 
@@ -31,12 +34,12 @@ export default function ScreenshotModal({
           <div className="watermark">ToldYouNotToTell.com</div>
         </div>
       </div>
-      <button 
-        className="download-btn" 
+      <button
+        className="download-btn"
         onClick={handleDownload}
         disabled={captureRef.isLoading}
       >
-        {captureRef.isLoading ? 'Processing...' : 'Download Image'}
+        {captureRef.isLoading ? "Processing..." : "Download Image"}
       </button>
     </div>
   );

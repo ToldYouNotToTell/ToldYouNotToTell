@@ -42,5 +42,5 @@ export const CATEGORIES = [
   "Jealousy",
   "Happiness",
   "Goodness",
-  "Social networks"
+  "Social networks",
 ];

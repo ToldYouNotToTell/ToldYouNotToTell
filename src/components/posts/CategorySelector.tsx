@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { CATEGORIES } from '@/lib/constants/categories';
+import { CATEGORIES } from "@/lib/constants/categories";
 
 export default function CategorySelector({
   value,
-  onChange
+  onChange,
 }: {
   value: string;
   onChange: (category: string) => void;

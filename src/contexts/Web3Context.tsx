@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
-import { UniversalStorage } from '@/lib/api/universalStorage';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { UniversalStorage } from "@/lib/api/universalStorage";
 
 interface Web3ContextType {
   connectWallet: () => Promise<void>;
@@ -24,12 +30,12 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [wallet] = useState(new PhantomWalletAdapter());
 
   useEffect(() => {
-    wallet.on('connect', (publicKey: PublicKey) => {
+    wallet.on("connect", (publicKey: PublicKey) => {
       setPublicKey(publicKey);
-      setConnection(new Connection(clusterApiUrl('mainnet-beta'), 'confirmed'));
+      setConnection(new Connection(clusterApiUrl("mainnet-beta"), "confirmed"));
     });
 
-    wallet.on('disconnect', () => {
+    wallet.on("disconnect", () => {
       setPublicKey(null);
       setConnection(null);
     });
@@ -43,7 +49,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     try {
       await wallet.connect();
     } catch (error) {
-      console.error('Connection error:', error);
+      console.error("Connection error:", error);
     }
   };
 
@@ -53,17 +59,20 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
   const captureScreenshot = async (element: HTMLElement, filename: string) => {
     const canvas = await html2canvas(element);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.download = `${filename}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
   const downloadTextFile = (filename: string, content: string) => {
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
+    const element = document.createElement("a");
+    element.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(content)
+    );
+    element.setAttribute("download", filename);
+    element.style.display = "none";
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -78,7 +87,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         isConnected: !!publicKey,
         storage,
         captureScreenshot,
-        downloadTextFile
+        downloadTextFile,
       }}
     >
       {children}
@@ -89,7 +98,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 export function useWeb3() {
   const context = useContext(Web3Context);
   if (context === undefined) {
-    throw new Error('useWeb3 must be used within a Web3Provider');
+    throw new Error("useWeb3 must be used within a Web3Provider");
   }
   return context;
 }

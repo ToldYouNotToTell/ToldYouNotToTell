@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export function useKeyboardShortcut(
   key: string,
@@ -13,7 +13,7 @@ export function useKeyboardShortcut(
       }
     };
 
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [key, callback, ctrlKey]);
 }

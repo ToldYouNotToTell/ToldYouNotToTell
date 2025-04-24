@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Pagination({
   totalItems,
   itemsPerPage,
   currentPage,
-  onPageChange
+  onPageChange,
 }: {
   totalItems: number;
   itemsPerPage: number;
@@ -43,7 +43,7 @@ export default function Pagination({
         <button
           key={page}
           onClick={() => onPageChange(page)}
-          className={currentPage === page ? 'active' : ''}
+          className={currentPage === page ? "active" : ""}
         >
           {page}
         </button>

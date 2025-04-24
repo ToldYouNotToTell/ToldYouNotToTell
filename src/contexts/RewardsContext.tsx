@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { createContext, useContext, useEffect, useState } from "react";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 type RewardsContextType = {
   poolAmount: number;
@@ -13,23 +13,23 @@ type RewardsContextType = {
 const RewardsContext = createContext<RewardsContextType>({
   poolAmount: 0,
   stakingAPY: 0,
-  lastDistribution: null
+  lastDistribution: null,
 });
 
 export function RewardsProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<RewardsContextType>({
     poolAmount: 0,
     stakingAPY: 8.3, // Default APY
-    lastDistribution: null
+    lastDistribution: null,
   });
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(doc(db, 'rewards/pool'), (doc) => {
+    const unsubscribe = onSnapshot(doc(db, "rewards/pool"), (doc) => {
       const poolData = doc.data();
-      setData(prev => ({
+      setData((prev) => ({
         ...prev,
         poolAmount: poolData?.amount || 0,
-        lastDistribution: poolData?.lastDistributed?.toDate() || null
+        lastDistribution: poolData?.lastDistributed?.toDate() || null,
       }));
     });
 
@@ -37,9 +37,7 @@ export function RewardsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <RewardsContext.Provider value={data}>
-      {children}
-    </RewardsContext.Provider>
+    <RewardsContext.Provider value={data}>{children}</RewardsContext.Provider>
   );
 }
 

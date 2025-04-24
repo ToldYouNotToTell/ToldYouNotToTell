@@ -1,8 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
-export default function Comment({ comment, postId }: {
+export default function Comment({
+  comment,
+  postId,
+}: {
   comment: Comment;
   postId: number;
 }) {

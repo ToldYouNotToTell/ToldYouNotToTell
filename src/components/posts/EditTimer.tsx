@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Post } from '@/types/post';
+import { useEffect, useState } from "react";
+import { Post } from "@/types/post";
 
 export default function EditTimer({ post }: { post: Post }) {
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
@@ -31,10 +31,14 @@ export default function EditTimer({ post }: { post: Post }) {
   if (!timeLeft) return null;
 
   return (
-    <div 
-      className="edit-timer" 
+    <div
+      className="edit-timer"
       title="Time left to edit"
-      onClick={() => alert('Your stories can be edited or deleted only within the first 3 hours')}
+      onClick={() =>
+        alert(
+          "Your stories can be edited or deleted only within the first 3 hours"
+        )
+      }
     >
       <i className="fas fa-hourglass-half"></i> {timeLeft}
     </div>

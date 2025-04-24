@@ -11,14 +11,14 @@
   --icon-color: #bbb;
   --star-color: gold;
   --moderator-color: #ff5722;
-  
+
   /* Специфичные для компонентов */
   --post-side-padding: 15px;
   --post-content-padding: 30px;
-  
+
   /* Градиенты */
-  --phantom-gradient: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
-  --presale-gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  --phantom-gradient: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  --presale-gradient: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
 }
 
 /* Светлая тема */
@@ -32,8 +32,8 @@
 }
 
 /* ========== Базовые стили ========== */
-@import url('https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+@import url("https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css");
 
 * {
   box-sizing: border-box;
@@ -42,8 +42,9 @@
 }
 
 body {
-  font-family: 'Tahoma', sans-serif;
-  background: url('https://imagizer.imageshack.com/img924/2739/6DOg7G.jpg') no-repeat center center fixed;
+  font-family: "Tahoma", sans-serif;
+  background: url("https://imagizer.imageshack.com/img924/2739/6DOg7G.jpg")
+    no-repeat center center fixed;
   background-size: cover;
   color: var(--text-color);
   min-height: 100vh;
@@ -97,13 +98,24 @@ body {
 
 /* Анимации (из animations.css) */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .pulse {
@@ -113,13 +125,20 @@ body {
 /* ========== Специфичные стили для бустов ========== */
 .boost-basic {
   border-left-color: var(--boost-basic-color);
-  background: linear-gradient(90deg, rgba(76, 175, 80, 0.05) 0%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(76, 175, 80, 0.05) 0%,
+    transparent 100%
+  );
 }
 
 .boost-premium {
   border-left-color: var(--boost-premium-color);
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(0, 188, 212, 0.1) 0%, transparent 20%);
+  background-image: radial-gradient(
+    circle at 10% 20%,
+    rgba(0, 188, 212, 0.1) 0%,
+    transparent 20%
+  );
 }
 
 /* ========== Адаптивность ========== */
@@ -134,7 +153,7 @@ body {
 
 /* ========== Водяные знаки и утилиты ========== */
 .watermark {
-  font-family: 'Great Vibes', cursive;
+  font-family: "Great Vibes", cursive;
   opacity: 0.3;
 }
 

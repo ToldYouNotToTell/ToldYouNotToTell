@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export function useWeb3() {
   const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState('');
+  const [walletAddress, setWalletAddress] = useState("");
 
   const connectWallet = async () => {
     try {
@@ -12,15 +12,15 @@ export function useWeb3() {
         const response = await window.solana.connect();
         setWalletAddress(response.publicKey.toString());
         setWalletConnected(true);
-        setValue('phantomWallet', response.publicKey.toString());
+        setValue("phantomWallet", response.publicKey.toString());
       }
     } catch (error) {
-      console.error('Error connecting wallet:', error);
+      console.error("Error connecting wallet:", error);
     }
   };
 
   useEffect(() => {
-    const savedWallet = useUniversalStorage('phantomWallet');
+    const savedWallet = useUniversalStorage("phantomWallet");
     if (savedWallet) {
       setWalletAddress(savedWallet);
       setWalletConnected(true);
@@ -30,6 +30,6 @@ export function useWeb3() {
   return {
     walletConnected,
     walletAddress,
-    connectWallet
+    connectWallet,
   };
 }

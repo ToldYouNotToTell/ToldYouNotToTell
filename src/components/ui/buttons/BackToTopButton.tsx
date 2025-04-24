@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export default function BackToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,22 +14,22 @@ export default function BackToTopButton() {
       }
     };
 
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   };
 
   return (
-    <button 
-      className="back-to-top" 
+    <button
+      className="back-to-top"
       onClick={scrollToTop}
-      style={{ display: isVisible ? 'flex' : 'none' }}
+      style={{ display: isVisible ? "flex" : "none" }}
     >
       <i className="fas fa-arrow-up"></i>
     </button>

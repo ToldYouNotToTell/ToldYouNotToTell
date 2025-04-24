@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { usePosts } from '@/hooks/usePosts';
+import { usePosts } from "@/hooks/usePosts";
 
 export default function NavMenu() {
   const { showOnlyMyPosts, toggleMyPostsFilter } = usePosts();
@@ -8,7 +8,7 @@ export default function NavMenu() {
   return (
     <div className="nav-menu" id="navMenu">
       <a href="#" onClick={toggleMyPostsFilter}>
-        {showOnlyMyPosts ? 'All Posts' : 'My Posts'}
+        {showOnlyMyPosts ? "All Posts" : "My Posts"}
       </a>
       <a href="/promotion">Promotion</a>
       <a href="/rewards">My Rewards</a>
@@ -21,5 +21,7 @@ export default function NavMenu() {
 }
 
 function showFAQ() {
-  alert('FAQ: 1. How to recover posts? Use your recovery code in the search box...');
+  alert(
+    "FAQ: 1. How to recover posts? Use your recovery code in the search box..."
+  );
 }

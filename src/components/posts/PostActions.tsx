@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useWeb3 } from '@/hooks/useWeb3';
-import { useModeration } from '@/hooks/useModeration';
-import { Button } from '@/components/ui/button';
-import { BoostDialog } from '@/components/modals/BoostDialog';
+import { useWeb3 } from "@/hooks/useWeb3";
+import { useModeration } from "@/hooks/useModeration";
+import { Button } from "@/components/ui/button";
+import { BoostDialog } from "@/components/modals/BoostDialog";
 
-export const PostActions = ({ 
+export const PostActions = ({
   post,
   isAuthor,
-  isConnected
+  isConnected,
 }: {
   post: Post;
   isAuthor: boolean;
@@ -29,18 +29,14 @@ export const PostActions = ({
           </Button>
         </>
       )}
-      
-      <BoostDialog 
-        postId={post.id} 
+
+      <BoostDialog
+        postId={post.id}
         currentBoost={post.boostAmount}
         onBoost={boostPost}
       />
 
-      <Button 
-        variant="ghost" 
-        size="sm"
-        onClick={() => reportPost(post.id)}
-      >
+      <Button variant="ghost" size="sm" onClick={() => reportPost(post.id)}>
         Report
       </Button>
     </div>

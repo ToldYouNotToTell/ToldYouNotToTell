@@ -1,6 +1,6 @@
-'use client';
-import React from 'react';
-import { showStakingPage } from '@/lib/uiActions';
+"use client";
+import React from "react";
+import { showStakingPage } from "@/lib/uiActions";
 
 export default function StakeButton() {
   return (

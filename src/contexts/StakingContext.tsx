@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { useWeb3 } from '@/hooks/useWeb3';
-import { db } from '@/lib/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { createContext, useContext, useEffect, useState } from "react";
+import { useWeb3 } from "@/hooks/useWeb3";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 type StakingContextType = {
   stakedAmount: number;
@@ -18,28 +18,30 @@ const StakingContext = createContext<StakingContextType>({
   stakingTier: 0,
   trendingPosts: 0,
   stakeTokens: async () => {},
-  unstakeTokens: async () => {}
+  unstakeTokens: async () => {},
 });
 
 export function StakingProvider({ children }: { children: React.ReactNode }) {
   const { walletAddress } = useWeb3();
-  const [state, setState] = useState<Omit<StakingContextType, 'stakeTokens' | 'unstakeTokens'>>({
+  const [state, setState] = useState<
+    Omit<StakingContextType, "stakeTokens" | "unstakeTokens">
+  >({
     stakedAmount: 0,
     stakingTier: 0,
-    trendingPosts: 0
+    trendingPosts: 0,
   });
 
   useEffect(() => {
     if (!walletAddress) return;
 
-    const unsubscribe = onSnapshot(doc(db, 'staking', walletAddress), (doc) => {
+    const unsubscribe = onSnapshot(doc(db, "staking", walletAddress), (doc) => {
       const data = doc.data();
       const amount = data?.amount || 0;
-      
+
       setState({
         stakedAmount: amount,
         stakingTier: calculateStakingTier(amount),
-        trendingPosts: calculateTrendingPosts(amount)
+        trendingPosts: calculateTrendingPosts(amount),
       });
     });
 

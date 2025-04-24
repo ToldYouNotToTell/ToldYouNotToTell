@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { usePosts } from '@/hooks/usePosts';
+import { useState, useEffect } from "react";
+import { usePosts } from "@/hooks/usePosts";
 
-export default function Rating({ 
+export default function Rating({
   postId,
-  initialRating 
+  initialRating,
 }: {
   postId: number;
   initialRating: number;
@@ -23,7 +23,7 @@ export default function Rating({
       await ratePost(postId);
       setRating(value);
     } catch (error) {
-      console.error('Rating error:', error);
+      console.error("Rating error:", error);
     }
   };
 
@@ -32,7 +32,7 @@ export default function Rating({
       {[1, 2, 3, 4, 5].map((star) => (
         <i
           key={star}
-          className={`star ${star <= (hover || rating) ? 'active' : ''}`}
+          className={`star ${star <= (hover || rating) ? "active" : ""}`}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
           onClick={() => handleRating(star)}

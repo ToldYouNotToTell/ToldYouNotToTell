@@ -1,5 +1,5 @@
-import StakingForm from '@/components/modules/features/staking/StakingForm';
-import BackButton from '@/components/ui/buttons/BackButton';
+import StakingForm from "@/components/modules/features/staking/StakingForm";
+import BackButton from "@/components/ui/buttons/BackButton";
 
 export default function StakingPage() {
   return (

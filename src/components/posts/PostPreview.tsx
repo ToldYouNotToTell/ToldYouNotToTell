@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Post } from '@/types/post';
-import Watermark from '@/components/ui/Watermark';
+import { Post } from "@/types/post";
+import Watermark from "@/components/ui/Watermark";
 
-export default function PostPreview({ 
+export default function PostPreview({
   post,
   onClose,
-  onConfirm
+  onConfirm,
 }: {
-  post: Omit<Post, 'id' | 'date'>;
+  post: Omit<Post, "id" | "date">;
   onClose: () => void;
   onConfirm: () => void;
 }) {
@@ -19,7 +19,7 @@ export default function PostPreview({
         <p>{post.content}</p>
         {post.category && <span className="category-tag">{post.category}</span>}
         <Watermark />
-        
+
         <div className="preview-actions">
           <button onClick={onClose}>Edit</button>
           <button onClick={onConfirm}>Confirm</button>

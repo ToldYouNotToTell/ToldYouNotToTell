@@ -7,7 +7,7 @@ interface CategoryTagProps {
 
 export const CategoryTag = ({ category, className }: CategoryTagProps) => {
   return (
-    <span 
+    <span
       className={cn(
         "inline-block px-2 py-1 text-xs font-medium rounded-full",
         "bg-primary/20 text-primary",

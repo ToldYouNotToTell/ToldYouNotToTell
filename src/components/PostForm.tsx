@@ -1,23 +1,31 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-export default function PostForm({ 
-  onClose, 
-  onSubmit, 
-  initialValues 
+export default function PostForm({
+  onClose,
+  onSubmit,
+  initialValues,
 }: {
   onClose: () => void;
-  onSubmit: (values: { title: string; content: string; category: string }) => void;
+  onSubmit: (values: {
+    title: string;
+    content: string;
+    category: string;
+  }) => void;
   initialValues?: { title: string; content: string; category: string };
 }) {
   const [values, setValues] = useState({
-    title: initialValues?.title || '',
-    content: initialValues?.content || '',
-    category: initialValues?.category || ''
+    title: initialValues?.title || "",
+    content: initialValues?.content || "",
+    category: initialValues?.category || "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setValues(prev => ({ ...prev, [name]: value }));
+    setValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -27,7 +35,7 @@ export default function PostForm({
 
   return (
     <div className="add-post-form">
-      <h2>{initialValues ? 'Edit Note' : 'New Note'}</h2>
+      <h2>{initialValues ? "Edit Note" : "New Note"}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="postTitle">Title</label>
@@ -72,8 +80,10 @@ export default function PostForm({
           <div className="counter">{values.content.length}/650</div>
         </div>
         <div className="form-actions">
-          <button type="button" onClick={onClose}>Cancel</button>
-          <button type="submit">{initialValues ? 'Save' : 'Publish'}</button>
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit">{initialValues ? "Save" : "Publish"}</button>
         </div>
       </form>
     </div>

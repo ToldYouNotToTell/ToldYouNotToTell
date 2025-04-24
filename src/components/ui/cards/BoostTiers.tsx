@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { BOOST_TIERS } from '@/lib/utils/boost';
+import { BOOST_TIERS } from "@/lib/utils/boost";
 
 export default function BoostTiers() {
   return (
@@ -32,13 +32,20 @@ export default function BoostTiers() {
 }
 
 function getTierPerks(amount: number) {
-  switch(amount) {
-    case 5: return 'Above all free posts';
-    case 10: return 'Longer visibility retention';
-    case 30: return 'High rotation priority';
-    case 50: return 'Stable promotion';
-    case 100: return 'Higher position in Trending';
-    case 250: return 'Maximum reach';
-    default: return '';
+  switch (amount) {
+    case 5:
+      return "Above all free posts";
+    case 10:
+      return "Longer visibility retention";
+    case 30:
+      return "High rotation priority";
+    case 50:
+      return "Stable promotion";
+    case 100:
+      return "Higher position in Trending";
+    case 250:
+      return "Maximum reach";
+    default:
+      return "";
   }
 }

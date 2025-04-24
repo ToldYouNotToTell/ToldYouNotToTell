@@ -1,20 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { usePosts } from '@/hooks/usePosts';
+import { useState } from "react";
+import { usePosts } from "@/hooks/usePosts";
 
-export default function PostForm({ postToEdit, onClose }: {
+export default function PostForm({
+  postToEdit,
+  onClose,
+}: {
   postToEdit?: Post;
   onClose: () => void;
 }) {
-  const [title, setTitle] = useState(postToEdit?.title || '');
-  const [content, setContent] = useState(postToEdit?.content || '');
-  const [category, setCategory] = useState(postToEdit?.category || '');
+  const [title, setTitle] = useState(postToEdit?.title || "");
+  const [content, setContent] = useState(postToEdit?.content || "");
+  const [category, setCategory] = useState(postToEdit?.category || "");
   const { addPost, editPost } = usePosts();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (postToEdit) {
       editPost(postToEdit.id, { title, content, category });
     } else {
@@ -25,20 +28,20 @@ export default function PostForm({ postToEdit, onClose }: {
         category,
         voters: [],
         date: new Date(),
-        comments: []
+        comments: [],
       });
     }
-    
+
     onClose();
   };
 
   return (
     <div className="add-post-form">
-      <h2>{postToEdit ? 'Edit Note' : 'New Note'}</h2>
+      <h2>{postToEdit ? "Edit Note" : "New Note"}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Title</label>
-          <input 
+          <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -46,10 +49,10 @@ export default function PostForm({ postToEdit, onClose }: {
           />
           <div>{title.length}/100</div>
         </div>
-        
+
         <div className="form-group">
           <label>Category</label>
-          <select 
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -57,7 +60,7 @@ export default function PostForm({ postToEdit, onClose }: {
             {/* Опции категорий */}
           </select>
         </div>
-        
+
         <div className="form-group">
           <label>Content</label>
           <textarea
@@ -68,10 +71,12 @@ export default function PostForm({ postToEdit, onClose }: {
           />
           <div>{content.length}/650</div>
         </div>
-        
+
         <div className="form-actions">
-          <button type="button" onClick={onClose}>Cancel</button>
-          <button type="submit">{postToEdit ? 'Save' : 'Publish'}</button>
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit">{postToEdit ? "Save" : "Publish"}</button>
         </div>
       </form>
     </div>

@@ -1,35 +1,43 @@
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
   }
-  
-  @keyframes wave {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 200% 0%; }
+  to {
+    opacity: 1;
   }
-  
-  .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes wave {
+  0% {
+    background-position: 0% 0%;
   }
-  
-  .boost-premium::after {
-    animation: wave 5s linear infinite;
+  100% {
+    background-position: 200% 0%;
   }
-  
-  /* Анимация для появления модальных окон */
-  .modal-content {
-    animation: fadeIn 0.2s ease-out;
-  }
-  
-  /* Анимация для кнопок */
-  button {
-    transition: all 0.2s ease;
-  }
-  
-  button:hover {
-    transform: translateY(-1px);
-  }
-  
-  button:active {
-    transform: translateY(1px);
-  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.boost-premium::after {
+  animation: wave 5s linear infinite;
+}
+
+/* Анимация для появления модальных окон */
+.modal-content {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Анимация для кнопок */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(1px);
+}

@@ -1,11 +1,11 @@
-import { useWeb3 } from './useWeb3';
-import { getUserIP } from '../lib/utils/recovery';
+import { useWeb3 } from "./useWeb3";
+import { getUserIP } from "../lib/utils/recovery";
 
 export const usePostActions = (post: any) => {
   const { walletAddress } = useWeb3();
   const userIP = getUserIP();
-  
-  const isAuthor = walletAddress 
+
+  const isAuthor = walletAddress
     ? post.authorWallet === walletAddress
     : post.authorIP === userIP;
 

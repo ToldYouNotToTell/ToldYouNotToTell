@@ -1,6 +1,6 @@
-'use client';
-import React from 'react';
-import { payWithUSDT } from '@/lib/uiActions';
+"use client";
+import React from "react";
+import { payWithUSDT } from "@/lib/uiActions";
 
 export default function PayWithUSDTButton() {
   return (

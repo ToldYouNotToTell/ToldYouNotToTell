@@ -1,6 +1,6 @@
-'use client';
-import React from 'react';
-import { toggleForm } from '@/lib/uiActions';
+"use client";
+import React from "react";
+import { toggleForm } from "@/lib/uiActions";
 
 export default function CancelButton() {
   return (
