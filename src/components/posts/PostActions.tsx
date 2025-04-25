@@ -1,44 +1,19 @@
-"use client";
+// src/components/posts/PostActions.tsx
+'use client';
 
-import { useWeb3 } from "@/hooks/useWeb3";
-import { useModeration } from "@/hooks/useModeration";
-import { Button } from "@/components/ui/button";
-import { BoostDialog } from "@/components/modals/BoostDialog";
+import React from 'react';
+import type { Post } from '@/types/post';
+import BoostButton from '@/components/ui/buttons/BoostButton'
 
-export const PostActions = ({
-  post,
-  isAuthor,
-  isConnected,
-}: {
-  post: Post;
+export type PostActionsProps = {
+  post: Post; // Используем весь объект
   isAuthor: boolean;
-  isConnected: boolean;
-}) => {
-  const { reportPost } = useModeration();
-  const { boostPost, walletAddress } = useWeb3();
+};
 
+export default function PostActions({ post, isAuthor }: PostActionsProps) {
   return (
-    <div className="flex gap-2 mt-4">
-      {isAuthor && (
-        <>
-          <Button variant="outline" size="sm">
-            Edit
-          </Button>
-          <Button variant="destructive" size="sm">
-            Delete
-          </Button>
-        </>
-      )}
-
-      <BoostDialog
-        postId={post.id}
-        currentBoost={post.boostAmount}
-        onBoost={boostPost}
-      />
-
-      <Button variant="ghost" size="sm" onClick={() => reportPost(post.id)}>
-        Report
-      </Button>
+    <div className="post-actions">
+      {isAuthor && <BoostButton postId={Number(post.id)} />} // Приводим к number
     </div>
   );
-};
+}

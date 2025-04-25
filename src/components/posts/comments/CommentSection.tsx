@@ -1,52 +1,58 @@
-"use client";
+// src/components/posts/comments/CommentSection.tsx
+'use client';
 
-import { useState } from "react";
-import Comment from "./Comment";
+import React, { useState } from 'react';
+import { Comment } from '@/types/comment';
+import { CommentSubmitButton } from '@/components/ui/buttons/CommentSubmitButton';
+import { ToggleCommentsButton } from '@/components/ui/buttons/ToggleCommentsButton';
+
+interface CommentSectionProps {
+  postId: number;
+  comments: Comment[];
+  onAddComment: (text: string) => void;
+}
 
 export default function CommentSection({
   postId,
   comments,
-}: {
-  postId: number;
-  comments: Comment[];
-}) {
+  onAddComment,
+}: CommentSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [newComment, setNewComment] = useState("");
+  const [newComment, setNewComment] = useState('');
 
-  const handleAddComment = () => {
+  const handleSubmit = () => {
     if (newComment.trim()) {
-      // Логика добавления комментария
-      setNewComment("");
+      onAddComment(newComment);
+      setNewComment('');
     }
   };
 
   return (
-    <>
-      <button
-        className="toggle-comments-btn"
+    <div className="comment-section">
+      <ToggleCommentsButton
+        isOpen={isOpen}
+        commentCount={comments.length}
         onClick={() => setIsOpen(!isOpen)}
-      >
-        {comments.length > 0 ? `Comments (${comments.length})` : "Add comment"}
-      </button>
+      />
 
       {isOpen && (
-        <div className="comments">
-          {comments.length > 0 && (
-            <div className="comment-list">
-              {comments.map((comment) => (
-                <Comment key={comment.id} comment={comment} postId={postId} />
-              ))}
+        <div className="comments-container">
+          {comments.map((comment) => (
+            <div key={comment.id} className="comment">
+              {comment.text}
             </div>
-          )}
-
+          ))}
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Leave a comment..."
           />
-          <button onClick={handleAddComment}>Send</button>
+          <CommentSubmitButton
+            onClick={handleSubmit}
+            disabled={!newComment.trim()}
+          />
         </div>
       )}
-    </>
+    </div>
   );
 }

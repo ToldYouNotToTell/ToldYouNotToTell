@@ -1,14 +1,14 @@
 // src/types/post.d.ts
 
 export interface Comment {
-  id: string;
+  id: number;
   text: string;
   authorId: string;
   date: string;
 }
 
 export interface Post {
-  id: string;
+  id: number;
   title: string;
   content: string;
   voters: string[];

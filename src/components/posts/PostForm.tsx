@@ -5,25 +5,36 @@ import React, { useState, useEffect, FormEvent } from 'react';
 import { Post } from '@/types/post';
 
 const CATEGORY_OPTIONS = [
-  'Work','Love','Animals','Children','Society','Friendship','Betrayal','Secret',
-  'Dark past','Cheating','Dating','Fails','Shame','Guilt','Revenge','Breakdown',
-  'Deception','Mistakes','Pain','Repentance','Forbidden','Loneliness','Loss',
-  'Temptation','Funny','Risk','Hope','Private thoughts','Observations','Nature',
-  'Art','Study','Travel','Business','Mystic','Dreams','Hate','Family','Success',
-  'Scary','Jealousy','Happiness','Goodness','Social networks'
+  'Work', 'Love', 'Animals', 'Children', 'Society', 'Friendship', 'Betrayal', 'Secret',
+  'Dark past', 'Cheating', 'Dating', 'Fails', 'Shame', 'Guilt', 'Revenge', 'Breakdown',
+  'Deception', 'Mistakes', 'Pain', 'Repentance', 'Forbidden', 'Loneliness', 'Loss',
+  'Temptation', 'Funny', 'Risk', 'Hope', 'Private thoughts', 'Observations', 'Nature',
+  'Art', 'Study', 'Travel', 'Business', 'Mystic', 'Dreams', 'Hate', 'Family', 'Success',
+  'Scary', 'Jealousy', 'Happiness', 'Goodness', 'Social networks'
 ];
 
 type PostFormProps = {
+  mode?: 'create' | 'edit';
+  initialData?: {
+    title: string;
+    content: string;
+    category?: string;
+  };
   onSubmit: (post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>) => Promise<void>;
   onClose: () => void;
 };
 
-export default function PostForm({ onSubmit, onClose }: PostFormProps) {
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
-  const [content, setContent] = useState('');
-  const [titleCount, setTitleCount] = useState(0);
-  const [contentCount, setContentCount] = useState(0);
+export default function PostForm({ 
+  mode = 'create', 
+  initialData = { title: '', content: '', category: '' }, 
+  onSubmit, 
+  onClose 
+}: PostFormProps) {
+  const [title, setTitle] = useState(initialData.title);
+  const [category, setCategory] = useState(initialData.category || '');
+  const [content, setContent] = useState(initialData.content);
+  const [titleCount, setTitleCount] = useState(initialData.title.length);
+  const [contentCount, setContentCount] = useState(initialData.content.length);
 
   useEffect(() => { setTitleCount(title.length); }, [title]);
   useEffect(() => { setContentCount(content.length); }, [content]);
@@ -39,15 +50,17 @@ export default function PostForm({ onSubmit, onClose }: PostFormProps) {
     await onSubmit({ title, category, content });
     onClose();
 
-    // обнуляем поля
-    setTitle('');
-    setCategory('');
-    setContent('');
+    // Сбрасываем поля только при создании нового поста
+    if (mode === 'create') {
+      setTitle('');
+      setCategory('');
+      setContent('');
+    }
   };
 
   return (
-    <div className="add-post-form" id="addPostForm">
-      <h2>New Note</h2>
+    <div className="post-form" id={mode === 'create' ? 'addPostForm' : 'editPostForm'}>
+      <h2>{mode === 'create' ? 'New Note' : 'Edit Note'}</h2>
       <form onSubmit={handleSubmit}>
         {/* Title */}
         <div className="form-group">
@@ -92,7 +105,9 @@ export default function PostForm({ onSubmit, onClose }: PostFormProps) {
         {/* Buttons */}
         <div className="form-actions">
           <button type="button" onClick={onClose}>Cancel</button>
-          <button type="submit" id="submitBtn">Publish</button>
+          <button type="submit" id="submitBtn">
+            {mode === 'create' ? 'Publish' : 'Save Changes'}
+          </button>
         </div>
       </form>
     </div>

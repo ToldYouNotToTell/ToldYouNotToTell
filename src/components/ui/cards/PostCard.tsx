@@ -1,60 +1,82 @@
-// src/components/posts/PostCard.tsx
+// src/components/ui/cards/PostCard.tsx
 'use client';
 
 import React from 'react';
-import { Post } from '@/types/post';
+import type { Post } from '@/types/post';
 import { formatDate } from '@/lib/utils/date';
-import { CategoryTag } from '@/components/ui/CategoryTag';
-import { RatingStars } from '@/components/ui/RatingStars';
-import { usePosts } from '@/contexts/PostsContext';
+import styles from './PostCard.module.css';
+import BoostButton from '../buttons/BoostButton';
 
 export type PostCardProps = {
   post: Post;
-  onEdit: (updates: Partial<Post>) => void;
-  onDelete: () => void;
+  isAuthor: boolean;
+  onEdit?: (updates: Partial<Post>) => void;
+  onDelete?: () => void;
+  onVote?: () => void;
 };
 
-export default function PostCard({ post, onEdit, onDelete }: PostCardProps) {
-  // pull votePost from your PostsContext
-  const { votePost } = usePosts();
-
-  // supply a userId here (e.g. from your auth or wallet context)
-  const userId = 'CURRENT_USER_ID';
+export default function PostCard({
+  post,
+  isAuthor,
+  onEdit,
+  onDelete,
+  onVote
+}: PostCardProps) {
+  const hasVoted = post.voters?.includes('CURRENT_USER_ID') || false;
 
   return (
-    <div className={`post ${post.boostAmount ? 'boosted' : ''}`} data-id={post.id}>
-      {/* Заголовок */}
-      <h3>{post.title}</h3>
+    <article className={`${styles.postCard} ${post.boostAmount ? styles.boosted : ''}`}>
+      <header className={styles.postHeader}>
+        <h3 className={styles.postTitle}>{post.title}</h3>
+        {post.category && (
+          <span className={styles.postCategory}>{post.category}</span>
+        )}
+      </header>
 
-      {/* Содержание */}
-      <p>{post.content}</p>
-
-      {/* Тег категории */}
-      {post.category && <CategoryTag category={post.category} />}
-
-      {/* Дата */}
-      <div className="post-date">{formatDate(post.date)}</div>
-
-      {/* Действия */}
-      <div className="post-actions">
-        <button onClick={() => onEdit({ title: post.title })} title="Edit post">
-          ✏️
-        </button>
-        <button onClick={onDelete} title="Delete post">
-          🗑️
-        </button>
+      <div className={styles.postContent}>
+        <p>{post.content}</p>
       </div>
 
-      {/* Рейтинг */}
-      <div className="rating-container">
-        <RatingStars
-          postId={post.id}
-          initialRating={post.voters.length}
-          onRate={(id, newRating) => {
-            votePost(id, userId);
-          }}
-        />
-      </div>
-    </div>
+      <footer className={styles.postFooter}>
+        <div className={styles.postMeta}>
+          <time dateTime={post.date}>{formatDate(post.date)}</time>
+          <span>#{post.orderNumber}</span>
+        </div>
+
+        <div className={styles.postActions}>
+          {isAuthor && (
+            <>
+              <BoostButton postId={post.id} />
+              {onEdit && (
+                <button 
+                  onClick={() => onEdit({})}
+                  className={styles.actionButton}
+                >
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button 
+                  onClick={onDelete}
+                  className={styles.actionButton}
+                >
+                  Delete
+                </button>
+              )}
+            </>
+          )}
+          
+          {onVote && (
+            <button 
+              onClick={onVote}
+              className={`${styles.voteButton} ${hasVoted ? styles.voted : ''}`}
+              disabled={hasVoted}
+            >
+              ★ {post.voters?.length || 0}
+            </button>
+          )}
+        </div>
+      </footer>
+    </article>
   );
 }

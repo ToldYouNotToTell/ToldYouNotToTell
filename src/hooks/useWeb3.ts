@@ -1,8 +1,8 @@
 // src/hooks/useWeb3.ts
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useUniversalStorage } from '@/hooks/useUniversalStorage';  // убедитесь, что путь корректен
+import { useState, useEffect } from 'react';
+import { useUniversalStorage } from '@/hooks/useUniversalStorage';
 
 declare global {
   interface Window {
@@ -13,14 +13,11 @@ declare global {
 export function useWeb3() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-
-  // Хук работы с localStorage, возвращает [value, setValue]
   const [storedWallet, setStoredWallet] = useUniversalStorage<string | null>(
     'phantomWallet',
     null
   );
 
-  // При инициализации подхватываем сохранённый кошелёк
   useEffect(() => {
     if (storedWallet) {
       setWalletAddress(storedWallet);
@@ -28,7 +25,6 @@ export function useWeb3() {
     }
   }, [storedWallet]);
 
-  // Функция подключения Phantom
   const connectWallet = async () => {
     if (window.solana?.isPhantom) {
       try {
@@ -45,9 +41,19 @@ export function useWeb3() {
     }
   };
 
+  const boostPost = async (postId: number, amount: number) => {
+    if (!walletAddress) {
+      throw new Error('Wallet not connected');
+    }
+    // Здесь будет реальная логика вызова контракта
+    console.log(`Boosting post ${postId} with ${amount} USDT`);
+    return Promise.resolve();
+  };
+
   return {
     connectWallet,
     walletAddress,
     isConnected,
+    boostPost
   };
 }

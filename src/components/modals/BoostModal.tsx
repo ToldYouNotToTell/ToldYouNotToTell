@@ -1,47 +1,68 @@
-"use client";
+// src/components/modals/BoostModal.tsx
+'use client';
 
-import { <BoostTiers> } from "@/components/ui/cards/BoostTiers";
+import React, { useState } from 'react';
+import { boostTiers } from '@/lib/utils/boost';
 
-export default function BoostModal({
-  onClose,
-  onBoost,
-}: {
+export type BoostModalProps = {
+  /** Закрыть модалку */
   onClose: () => void;
+  /** Колбэк с числом (amount) для буста */
   onBoost: (amount: number) => void;
-}) {
-  const [selectedTier, setSelectedTier] = useState<keyof typeof BoostTiers>(5);
+};
+
+export default function BoostModal({ onClose, onBoost }: BoostModalProps) {
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+
+  const handleConfirm = () => {
+    if (selectedAmount !== null) {
+      onBoost(selectedAmount);
+    }
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
-          &times;
+        <button
+          type="button"
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close boost modal"
+          title="Close"
+        >
+          ×
         </button>
+
         <h2>Boost Your Post</h2>
 
         <div className="boost-options">
-          {Object.entries(BoostTiers).map(([amount, tier]) => (
+          {boostTiers.map((tier) => (
             <div
-              key={amount}
+              key={tier.name}
               className={`boost-option ${
-                selectedTier === Number(amount) ? "selected" : ""
+                selectedAmount === tier.minWeight ? 'selected' : ''
               }`}
-              onClick={() => setSelectedTier(Number(amount))}
+              onClick={() => setSelectedAmount(tier.minWeight)}
             >
-              <div className="boost-icon">{tier.icon}</div>
-              <div className="boost-details">
-                <h3>{tier.name}</h3>
-                <p>
-                  ${amount} - {tier.max} hours visibility
-                </p>
-                <small>Priority decay: -{tier.decay * 100}% per hour</small>
+              <div className="boost-option__name">{tier.name}</div>
+              <div className="boost-option__price">
+                ${tier.minWeight}
+                {tier.maxWeight === Infinity ? '+' : `–${tier.maxWeight}`}
+              </div>
+              <div className="boost-option__decay">
+                Decay: {(tier.decayRate * 100).toFixed(0)}%/hr
               </div>
             </div>
           ))}
         </div>
 
-        <button className="boost-confirm" onClick={() => onBoost(selectedTier)}>
-          Pay with USDT
+        <button
+          type="button"
+          className="boost-submit"
+          disabled={selectedAmount === null}
+          onClick={handleConfirm}
+        >
+          Confirm Boost
         </button>
       </div>
     </div>

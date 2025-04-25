@@ -1,0 +1,15 @@
+/* src/components/ui/buttons/ToggleCommentsButton.module.css */
+.button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 5px 0;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  
+  .button:hover {
+    color: var(--primary-hover);
+  }

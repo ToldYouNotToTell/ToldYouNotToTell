@@ -1,0 +1,40 @@
+.commentSection {
+    margin-top: 1rem;
+  }
+  
+  .toggleButton {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+  }
+  
+  .commentsContainer {
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.5rem;
+  }
+  
+  .commentList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+  }
+  
+  .commentForm {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .commentForm textarea {
+    flex-grow: 1;
+    min-height: 80px;
+    padding: 0.5rem;
+  }
+  
+  .submitButton {
+    align-self: flex-end;
+    padding: 0.5rem 1rem;
+  }

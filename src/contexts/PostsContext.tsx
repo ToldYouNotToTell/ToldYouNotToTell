@@ -8,36 +8,44 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
-import { Post } from '@/types/post';
+import { Post, Comment } from '@/types/post';
 import { UniversalStorage } from '@/lib/api/universalStorage';
+
+// Хелпер для нормализации ID
+const normalizeId = (id: number | string): number => {
+  if (typeof id === 'number') return id;
+  const parsed = parseInt(id, 10);
+  if (isNaN(parsed)) throw new Error(`Invalid ID: ${id}`);
+  return parsed;
+};
 
 export type PostsContextType = {
   posts: Post[];
+  filteredPosts: Post[];
   loading: boolean;
   error: string | null;
   searchPosts: (query: string) => void;
   addPost: (
     post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
   ) => Promise<void>;
-  editPost: (id: string, updates: Partial<Post>) => Promise<void>;
-  deletePost: (id: string) => Promise<void>;
-  getPost: (id: string) => Post | undefined;
-  votePost: (postId: string, userId: string) => Promise<void>;
+  editPost: (id: number | string, updates: Partial<Post>) => Promise<void>;
+  deletePost: (id: number | string) => Promise<void>;
+  getPost: (id: number | string) => Post | undefined;
+  votePost: (postId: number | string, userId: string) => Promise<void>;
   addComment: (
-    postId: string,
+    postId: number | string,
     text: string,
     userId: string
   ) => Promise<void>;
-
-  // --- новые методы для UI ---
-  ratePost: (postId: string, e: React.MouseEvent) => void;
-  reportPost: (postId: string) => void;
+  ratePost: (postId: number | string) => void;
+  reportPost: (postId: number | string) => void;
   sharePostDirect: (
     platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
-    postId: string
+    postId: number | string
   ) => void;
-  copyPostLink: (postId: string) => void;
-  downloadPostImage: (postId: string) => void;
+  copyPostLink: (postId: number | string) => void;
+  downloadPostImage: (postId: number | string) => void;
+  setFilteredPosts: React.Dispatch<React.SetStateAction<Post[]>>;
 };
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
@@ -45,29 +53,37 @@ const PostsContext = createContext<PostsContextType | undefined>(undefined);
 export function PostsProvider({ children }: { children: ReactNode }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const storage = new UniversalStorage();
 
-  // Загрузка
   useEffect(() => {
-    async function fetchPosts() {
+    const fetchPosts = async () => {
       try {
         setLoading(true);
-        const all = await storage.getPosts();
-        setPosts(all);
-        setFilteredPosts(all);
+        const allPosts = await storage.getPosts();
+        // Нормализуем ID при загрузке
+        const normalizedPosts = allPosts.map((post) => ({
+          ...post,
+          id: normalizeId(post.id),
+          comments: post.comments.map((comment) => ({
+            ...comment,
+            id: normalizeId(comment.id),
+          })),
+        }));
+        setPosts(normalizedPosts);
+        setFilteredPosts(normalizedPosts);
       } catch (err) {
-        console.error(err);
         setError('Failed to load posts');
+        console.error(err);
       } finally {
         setLoading(false);
       }
-    }
+    };
     fetchPosts();
   }, [storage]);
 
-  // CRUD
   const addPost = async (
     post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
   ) => {
@@ -75,202 +91,202 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const newPost: Post = {
         ...post,
-        id: Date.now().toString(),
+        id: Date.now(),
         date: new Date().toISOString(),
         voters: [],
         comments: [],
         orderNumber: posts.length + 1,
       };
       await storage.addPost(newPost);
-      setPosts((p) => [newPost, ...p]);
-      setFilteredPosts((p) => [newPost, ...p]);
+      setPosts((prev) => [newPost, ...prev]);
+      setFilteredPosts((prev) => [newPost, ...prev]);
     } catch (err) {
-      console.error(err);
       setError('Failed to add post');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const editPost = async (id: string, updates: Partial<Post>) => {
+  const editPost = async (id: number | string, updates: Partial<Post>) => {
     try {
       setLoading(true);
-      await storage.updatePost(id, updates);
-      setPosts((p) => p.map((x) => (x.id === id ? { ...x, ...updates } : x)));
-      setFilteredPosts((p) =>
-        p.map((x) => (x.id === id ? { ...x, ...updates } : x))
+      const numericId = normalizeId(id);
+      // Передаём ключ-строку
+      await storage.updatePost(numericId.toString(), updates);
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === numericId ? { ...post, ...updates } : post
+        )
+      );
+      setFilteredPosts((prev) =>
+        prev.map((post) =>
+          post.id === numericId ? { ...post, ...updates } : post
+        )
       );
     } catch (err) {
-      console.error(err);
       setError('Failed to update post');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const deletePost = async (id: string) => {
+  const deletePost = async (id: number | string) => {
     try {
       setLoading(true);
-      await storage.deletePost(id);
-      setPosts((p) => p.filter((x) => x.id !== id));
-      setFilteredPosts((p) => p.filter((x) => x.id !== id));
+      const numericId = normalizeId(id);
+      await storage.deletePost(numericId.toString());
+      setPosts((prev) => prev.filter((post) => post.id !== numericId));
+      setFilteredPosts((prev) =>
+        prev.filter((post) => post.id !== numericId)
+      );
     } catch (err) {
-      console.error(err);
       setError('Failed to delete post');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Голосование
-  const votePost = async (postId: string, userId: string) => {
+  const votePost = async (postId: number | string, userId: string) => {
     try {
       setLoading(true);
-      const p = posts.find((x) => x.id === postId);
-      if (!p) throw new Error('Post not found');
-      const has = p.voters.includes(userId);
-      const voters = has
-        ? p.voters.filter((id) => id !== userId)
-        : [...p.voters, userId];
-      await storage.updatePost(postId, { voters });
-      setPosts((p) =>
-        p.map((x) => (x.id === postId ? { ...x, voters } : x))
-      );
-      setFilteredPosts((p) =>
-        p.map((x) => (x.id === postId ? { ...x, voters } : x))
-      );
+      const numericId = normalizeId(postId);
+      const updatedPosts = posts.map((post) => {
+        if (post.id === numericId) {
+          const hasVoted = post.voters.includes(userId);
+          const voters = hasVoted
+            ? post.voters.filter((id) => id !== userId)
+            : [...post.voters, userId];
+          return { ...post, voters };
+        }
+        return post;
+      });
+      await storage.updatePost(numericId.toString(), {
+        voters: updatedPosts.find((p) => p.id === numericId)?.voters,
+      });
+      setPosts(updatedPosts);
+      setFilteredPosts(updatedPosts);
     } catch (err) {
-      console.error(err);
       setError('Failed to vote');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Комментарии
   const addComment = async (
-    postId: string,
+    postId: number | string,
     text: string,
     userId: string
   ) => {
     try {
       setLoading(true);
-      const newComment = {
-        id: Date.now().toString(),
+      const numericId = normalizeId(postId);
+      const newComment: Comment = {
+        id: Date.now(),
         text,
         authorId: userId,
         date: new Date().toISOString(),
       };
-      await storage.addComment(postId, newComment);
-      setPosts((p) =>
-        p.map((x) =>
-          x.id === postId ? { ...x, comments: [...x.comments, newComment] } : x
-        )
+      const updatedPosts = posts.map((post) =>
+        post.id === numericId
+          ? { ...post, comments: [...post.comments, newComment] }
+          : post
       );
-      setFilteredPosts((p) =>
-        p.map((x) =>
-          x.id === postId ? { ...x, comments: [...x.comments, newComment] } : x
-        )
-      );
+      await storage.addComment(numericId.toString(), newComment);
+      setPosts(updatedPosts);
+      setFilteredPosts(updatedPosts);
     } catch (err) {
-      console.error(err);
       setError('Failed to add comment');
+      console.error(err);
     } finally {
-      setLoading(false);
+      setLoading(false);  // <-- здесь больше нет ошибок на numericId
     }
   };
 
-  // Поиск
   const searchPosts = (query: string) => {
-    if (!query.trim()) {
-      setFilteredPosts(posts);
-      return;
-    }
-    const q = query.toLowerCase();
+    const normalizedQuery = query.toLowerCase().trim();
     setFilteredPosts(
-      posts.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.orderNumber.toString().includes(q) ||
-          p.recoveryCode?.toLowerCase().includes(q)
-      )
+      normalizedQuery
+        ? posts.filter(
+            (post) =>
+              post.title.toLowerCase().includes(normalizedQuery) ||
+              post.orderNumber
+                .toString()
+                .includes(normalizedQuery) ||
+              (post.recoveryCode ?? '')
+                .toLowerCase()
+                .includes(normalizedQuery)
+          )
+        : posts
     );
   };
 
-  // Вспомогательные для UI:
-  const ratePost = (postId: string, e: React.MouseEvent) => {
-    // тут можно получить текущего userId
-    const userId = 'anonymous'; // <-- замените логикой вашего auth
-    votePost(postId, userId).catch(console.error);
+  const ratePost = (postId: number | string) => {
+    const numericId = normalizeId(postId);
+    votePost(numericId, 'anonymous').catch(console.error);
   };
 
-  const reportPost = (postId: string) => {
-    console.log('Report post', postId);
-    // сюда вашу логику репорта (firestore, API и т.п.)
+  const reportPost = (postId: number | string) => {
+    const numericId = normalizeId(postId);
+    console.log(`Reporting post ${numericId}`);
   };
 
   const sharePostDirect = (
     platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
-    postId: string
+    postId: number | string
   ) => {
-    const url = `${window.location.origin}/?post=${postId}`;
-    let shareUrl = '';
-    switch (platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-          url
-        )}`;
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-          url
-        )}`;
-        break;
-      case 'telegram':
-        shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-          url
-        )}`;
-        break;
-    }
-    window.open(shareUrl, '_blank');
+    const numericId = normalizeId(postId);
+    const url = `${window.location.origin}/posts/${numericId}`;
+    const shareUrls = {
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+        url
+      )}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        url
+      )}`,
+      telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(url)}`,
+    };
+    window.open(shareUrls[platform], '_blank', 'noopener,noreferrer');
   };
 
-  const copyPostLink = (postId: string) => {
-    const url = `${window.location.origin}/?post=${postId}`;
-    navigator.clipboard.writeText(url).catch(console.error);
+  const copyPostLink = (postId: number | string) => {
+    const numericId = normalizeId(postId);
+    const url = `${window.location.origin}/posts/${numericId}`;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => console.log('Link copied'))
+      .catch(console.error);
   };
 
-  const downloadPostImage = (postId: string) => {
-    // тут можно использовать html2canvas или ваш flow
-    console.log('Download image for', postId);
+  const downloadPostImage = (postId: number | string) => {
+    const numericId = normalizeId(postId);
+    console.log(`Downloading image for post ${numericId}`);
   };
 
   return (
     <PostsContext.Provider
       value={{
-        posts:
-          filteredPosts.length > 0 || filteredPosts.length !== posts.length
-            ? filteredPosts
-            : posts,
+        posts,
+        filteredPosts,
         loading,
         error,
         searchPosts,
         addPost,
         editPost,
         deletePost,
-        getPost: (id) => posts.find((x) => x.id === id),
+        getPost: (id) => posts.find((post) => post.id === normalizeId(id)),
         votePost,
         addComment,
-
-        // новые методы
         ratePost,
         reportPost,
         sharePostDirect,
         copyPostLink,
         downloadPostImage,
+        setFilteredPosts,
       }}
     >
       {children}
@@ -279,7 +295,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
 }
 
 export function usePosts() {
-  const ctx = useContext(PostsContext);
-  if (!ctx) throw new Error('usePosts must be used within PostsProvider');
-  return ctx;
+  const context = useContext(PostsContext);
+  if (!context)
+    throw new Error('usePosts must be used within PostsProvider');
+  return context;
 }
