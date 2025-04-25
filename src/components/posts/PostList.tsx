@@ -8,17 +8,17 @@ import PostCard from '@/components/ui/cards/PostCard';
 interface PostListProps {
   posts: Post[];
   currentUserId?: string;
-  onEdit: (id: number, updates: Partial<Post>) => void;
-  onDelete: (id: number) => void;
-  onVote?: (postId: number) => void;
+  onEdit: (id: string, updates: Partial<Post>) => void;
+  onDelete: (id: string) => void;
+  onVote?: (postId: string) => void;
 }
 
-export default function PostList({ 
-  posts, 
+export default function PostList({
+  posts,
   currentUserId,
-  onEdit, 
+  onEdit,
   onDelete,
-  onVote 
+  onVote,
 }: PostListProps) {
   const isUserAuthor = (post: Post): boolean => {
     return Boolean(currentUserId && post.authorId === currentUserId);
@@ -31,9 +31,22 @@ export default function PostList({
           key={post.id}
           post={post}
           isAuthor={isUserAuthor(post)}
-          onEdit={isUserAuthor(post) ? (updates) => onEdit(post.id, updates) : undefined}
-          onDelete={isUserAuthor(post) ? () => onDelete(post.id) : undefined}
-          onVote={onVote ? () => onVote(post.id) : undefined}
+          onEdit={
+            isUserAuthor(post) 
+              ? (updates) => onEdit(post.id, updates) 
+              : undefined
+          }
+          onDelete={
+            isUserAuthor(post) 
+              ? () => onDelete(post.id) 
+              : undefined
+          }
+          onVote={
+            onVote 
+              ? () => onVote(post.id) 
+              : undefined
+          }
+          // Убрано onComment, так как оно не поддерживается PostCard
         />
       ))}
     </div>

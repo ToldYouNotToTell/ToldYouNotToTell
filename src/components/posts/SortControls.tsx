@@ -1,48 +1,56 @@
+// src/components/posts/SortControls.tsx
 'use client';
 
-import React from 'react';
-import { usePosts } from '@/hooks/usePosts';
-
-// Обновлённые пути:
-import RewardsPoolButton from '@/components/ui/buttons/RewardsPoolButton';
-import StakeButton from '@/components/ui/buttons/StakeButton';
+import { FaClock, FaStar, FaRandom, FaFire, FaLock } from "react-icons/fa";
+import { usePosts } from "@/contexts/PostsContext";
 
 export default function SortControls() {
   const { sortType, setSortType } = usePosts();
 
   return (
     <div className="sort">
-      <RewardsPoolButton />
-
       <button
-        className={sortType === 'new' ? 'active' : ''}
+        className="rewards-pool-btn"
+        onClick={() => {
+          /* show rewards */
+        }}
+        title="Rewards Pool"
+      >
+        💎
+        <span className="tooltip-text">Loading rewards info...</span>
+      </button>
+      <button
         onClick={() => setSortType('new')}
+        className={sortType === 'new' ? 'active' : ''}
       >
-        <i className="fas fa-clock"></i> New
+        <FaClock /> New
       </button>
-
       <button
-        className={sortType === 'top' ? 'active' : ''}
         onClick={() => setSortType('top')}
+        className={sortType === 'top' ? 'active' : ''}
       >
-        <i className="fas fa-star"></i> Top
+        <FaStar /> Top
       </button>
-
       <button
-        className={sortType === 'random' ? 'active' : ''}
         onClick={() => setSortType('random')}
+        className={sortType === 'random' ? 'active' : ''}
       >
-        <i className="fas fa-random"></i> Random
+        <FaRandom /> Random
       </button>
-
       <button
-        className={sortType === 'trending' ? 'active' : ''}
         onClick={() => setSortType('trending')}
+        className={sortType === 'trending' ? 'active' : ''}
       >
-        <i className="fas fa-fire"></i> Trending
+        <FaFire /> Trending
       </button>
-
-      <StakeButton />
+      <button
+        className="stake-btn"
+        onClick={() => {
+          /* show staking */
+        }}
+      >
+        <FaLock /> Stake TNTT
+      </button>
     </div>
   );
 }

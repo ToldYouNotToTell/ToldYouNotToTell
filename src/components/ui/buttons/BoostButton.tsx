@@ -6,7 +6,7 @@ import { useWeb3 } from '@/hooks/useWeb3';
 import BoostModal from '@/components/modals/BoostModal';
 
 export type BoostButtonProps = {
-  postId: number;
+  postId: string; // Изменено с number на string
 };
 
 export default function BoostButton({ postId }: BoostButtonProps) {

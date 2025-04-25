@@ -4,8 +4,8 @@
 import React from 'react';
 import type { Post } from '@/types/post';
 import { formatDate } from '@/lib/utils/date';
-import styles from './PostCard.module.css';
 import BoostButton from '../buttons/BoostButton';
+import CommentForm from '@/components/posts/comments/CommentForm';
 
 export type PostCardProps = {
   post: Post;
@@ -13,6 +13,7 @@ export type PostCardProps = {
   onEdit?: (updates: Partial<Post>) => void;
   onDelete?: () => void;
   onVote?: () => void;
+  onComment?: (text: string) => Promise<void> | void;
 };
 
 export default function PostCard({
@@ -20,62 +21,75 @@ export default function PostCard({
   isAuthor,
   onEdit,
   onDelete,
-  onVote
+  onVote,
+  onComment,
 }: PostCardProps) {
   const hasVoted = post.voters?.includes('CURRENT_USER_ID') || false;
 
   return (
-    <article className={`${styles.postCard} ${post.boostAmount ? styles.boosted : ''}`}>
-      <header className={styles.postHeader}>
-        <h3 className={styles.postTitle}>{post.title}</h3>
+    <article
+      className={`postCard ${post.boostAmount ? 'boosted' : ''}`}
+      data-id={post.id}
+    >
+      <header className="postHeader">
+        <h3 className="postTitle">{post.title}</h3>
         {post.category && (
-          <span className={styles.postCategory}>{post.category}</span>
+          <span className="postCategory">{post.category}</span>
         )}
       </header>
 
-      <div className={styles.postContent}>
+      <div className="postContent">
         <p>{post.content}</p>
       </div>
 
-      <footer className={styles.postFooter}>
-        <div className={styles.postMeta}>
+      <footer className="postFooter">
+        <div className="postMeta">
           <time dateTime={post.date}>{formatDate(post.date)}</time>
           <span>#{post.orderNumber}</span>
         </div>
 
-        <div className={styles.postActions}>
+        <div className="postActions">
           {isAuthor && (
             <>
               <BoostButton postId={post.id} />
               {onEdit && (
-                <button 
+                <button
+                  type="button"
                   onClick={() => onEdit({})}
-                  className={styles.actionButton}
+                  className="actionButton"
                 >
                   Edit
                 </button>
               )}
               {onDelete && (
-                <button 
+                <button
+                  type="button"
                   onClick={onDelete}
-                  className={styles.actionButton}
+                  className="actionButton"
                 >
                   Delete
                 </button>
               )}
             </>
           )}
-          
+
           {onVote && (
-            <button 
+            <button
+              type="button"
               onClick={onVote}
-              className={`${styles.voteButton} ${hasVoted ? styles.voted : ''}`}
+              className={`voteButton ${hasVoted ? 'voted' : ''}`}
               disabled={hasVoted}
             >
               ★ {post.voters?.length || 0}
             </button>
           )}
         </div>
+
+        {onComment && (
+          <div className="postComments">
+            <CommentForm onSubmit={onComment} />
+          </div>
+        )}
       </footer>
     </article>
   );

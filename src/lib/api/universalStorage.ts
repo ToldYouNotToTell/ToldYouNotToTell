@@ -1,71 +1,58 @@
 // src/lib/api/universalStorage.ts
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-  arrayRemove,
-  arrayUnion,             // ← импорт для добавления в массив
+import { 
+  collection, doc, getDoc, getDocs, addDoc, 
+  updateDoc, deleteDoc, query, orderBy, limit,
+  arrayUnion, arrayRemove 
 } from 'firebase/firestore';
-import type { Post, Comment } from '@/types/post';
+import { Post, Comment } from '@/types/post';
 import { db } from '@/lib/firebase';
 
 export class UniversalStorage {
-  private collectionRef = collection(db, 'posts');
+  private postsRef = collection(db, 'posts');
 
   async getPost(id: string): Promise<Post | null> {
-    const docRef = doc(this.collectionRef, id);
-    const snap = await getDoc(docRef);
-    return snap.exists() ? (snap.data() as Post) : null;
+    const snap = await getDoc(doc(this.postsRef, id));
+    return snap.exists() ? { id: snap.id, ...snap.data() } as Post : null;
   }
 
   async getPosts(): Promise<Post[]> {
     const snaps = await getDocs(
-      query(this.collectionRef, orderBy('date', 'desc'), limit(100))
+      query(this.postsRef, orderBy('date', 'desc'), limit(100))
     );
-    return snaps.docs.map(d => d.data() as Post);
+    return snaps.docs.map(d => ({ id: d.id, ...d.data() } as Post));
   }
 
   async addPost(post: Omit<Post, 'id'>): Promise<string> {
-    const ref = await addDoc(this.collectionRef, post);
+    const ref = await addDoc(this.postsRef, post);
     return ref.id;
   }
 
   async updatePost(id: string, data: Partial<Post>): Promise<void> {
-    const docRef = doc(this.collectionRef, id);
-    await updateDoc(docRef, data);
+    await updateDoc(doc(this.postsRef, id), data);
   }
 
   async deletePost(id: string): Promise<void> {
-    const docRef = doc(this.collectionRef, id);
-    await deleteDoc(docRef);
+    await deleteDoc(doc(this.postsRef, id));
   }
 
-  async removeTagFromPost(id: string, tag: string): Promise<void> {
-    const docRef = doc(this.collectionRef, id);
-    await updateDoc(docRef, { tags: arrayRemove(tag) });
-  }
-
-  /** Добавить комментарий в поле comments (массив) */
   async addComment(postId: string, comment: Comment): Promise<void> {
-    const docRef = doc(this.collectionRef, postId);
-    await updateDoc(docRef, {
-      comments: arrayUnion(comment),
+    await updateDoc(doc(this.postsRef, postId), {
+      comments: arrayUnion({
+        ...comment,
+        id: comment.id || Date.now().toString(),
+      }),
     });
   }
 
-  /** Удалить комментарий из поля comments (массив) */
-  async removeComment(postId: string, comment: Comment): Promise<void> {
-    const docRef = doc(this.collectionRef, postId);
-    await updateDoc(docRef, {
-      comments: arrayRemove(comment),
-    });
+  async removeComment(postId: string, commentId: string): Promise<void> {
+    const post = await this.getPost(postId);
+    if (!post) return;
+    
+    const comment = post.comments.find(c => c.id === commentId);
+    if (comment) {
+      await updateDoc(doc(this.postsRef, postId), {
+        comments: arrayRemove(comment),
+      });
+    }
   }
 }

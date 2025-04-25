@@ -1,23 +1,10 @@
 // src/contexts/PostsContext.tsx
 'use client';
-
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Post, Comment } from '@/types/post';
 import { UniversalStorage } from '@/lib/api/universalStorage';
 
-// Хелпер для нормализации ID
-const normalizeId = (id: number | string): number => {
-  if (typeof id === 'number') return id;
-  const parsed = parseInt(id, 10);
-  if (isNaN(parsed)) throw new Error(`Invalid ID: ${id}`);
-  return parsed;
-};
+export type SortType = 'new' | 'top' | 'random' | 'trending';
 
 export type PostsContextType = {
   posts: Post[];
@@ -25,27 +12,15 @@ export type PostsContextType = {
   loading: boolean;
   error: string | null;
   searchPosts: (query: string) => void;
-  addPost: (
-    post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
-  ) => Promise<void>;
-  editPost: (id: number | string, updates: Partial<Post>) => Promise<void>;
-  deletePost: (id: number | string) => Promise<void>;
-  getPost: (id: number | string) => Post | undefined;
-  votePost: (postId: number | string, userId: string) => Promise<void>;
-  addComment: (
-    postId: number | string,
-    text: string,
-    userId: string
-  ) => Promise<void>;
-  ratePost: (postId: number | string) => void;
-  reportPost: (postId: number | string) => void;
-  sharePostDirect: (
-    platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
-    postId: number | string
-  ) => void;
-  copyPostLink: (postId: number | string) => void;
-  downloadPostImage: (postId: number | string) => void;
+  addPost: (post: Omit<Post, 'id' | 'date' | 'voters' | 'comments'>) => Promise<void>;
+  editPost: (id: string, updates: Partial<Post>) => Promise<void>;
+  deletePost: (id: string) => Promise<void>;
+  getPost: (id: string) => Post | undefined;
+  votePost: (postId: string, userId: string) => Promise<void>;
+  addComment: (postId: string, text: string, userId: string) => Promise<void>;
   setFilteredPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+  sortType: SortType;
+  setSortType: React.Dispatch<React.SetStateAction<SortType>>;
 };
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
@@ -55,25 +30,17 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortType, setSortType] = useState<SortType>('new');
 
   const storage = new UniversalStorage();
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const loadPosts = async () => {
       try {
         setLoading(true);
-        const allPosts = await storage.getPosts();
-        // Нормализуем ID при загрузке
-        const normalizedPosts = allPosts.map((post) => ({
-          ...post,
-          id: normalizeId(post.id),
-          comments: post.comments.map((comment) => ({
-            ...comment,
-            id: normalizeId(comment.id),
-          })),
-        }));
-        setPosts(normalizedPosts);
-        setFilteredPosts(normalizedPosts);
+        const loadedPosts = await storage.getPosts();
+        setPosts(loadedPosts);
+        setFilteredPosts(loadedPosts);
       } catch (err) {
         setError('Failed to load posts');
         console.error(err);
@@ -81,48 +48,39 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     };
-    fetchPosts();
-  }, [storage]);
+    loadPosts();
+  }, []);
 
-  const addPost = async (
-    post: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>
-  ) => {
+  const addPost = async (post: Omit<Post, 'id' | 'date' | 'voters' | 'comments'>) => {
     try {
       setLoading(true);
-      const newPost: Post = {
+      const newPost = {
         ...post,
-        id: Date.now(),
         date: new Date().toISOString(),
         voters: [],
         comments: [],
-        orderNumber: posts.length + 1,
       };
-      await storage.addPost(newPost);
-      setPosts((prev) => [newPost, ...prev]);
-      setFilteredPosts((prev) => [newPost, ...prev]);
+      const id = await storage.addPost(newPost);
+      const createdPost = { ...newPost, id };
+      setPosts(prev => [createdPost, ...prev]);
+      setFilteredPosts(prev => [createdPost, ...prev]);
     } catch (err) {
-      setError('Failed to add post');
+      setError('Failed to create post');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const editPost = async (id: number | string, updates: Partial<Post>) => {
+  const editPost = async (id: string, updates: Partial<Post>) => {
     try {
       setLoading(true);
-      const numericId = normalizeId(id);
-      // Передаём ключ-строку
-      await storage.updatePost(numericId.toString(), updates);
+      await storage.updatePost(id, updates);
       setPosts((prev) =>
-        prev.map((post) =>
-          post.id === numericId ? { ...post, ...updates } : post
-        )
+        prev.map((post) => (post.id === id ? { ...post, ...updates } : post))
       );
       setFilteredPosts((prev) =>
-        prev.map((post) =>
-          post.id === numericId ? { ...post, ...updates } : post
-        )
+        prev.map((post) => (post.id === id ? { ...post, ...updates } : post))
       );
     } catch (err) {
       setError('Failed to update post');
@@ -132,15 +90,12 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deletePost = async (id: number | string) => {
+  const deletePost = async (id: string) => {
     try {
       setLoading(true);
-      const numericId = normalizeId(id);
-      await storage.deletePost(numericId.toString());
-      setPosts((prev) => prev.filter((post) => post.id !== numericId));
-      setFilteredPosts((prev) =>
-        prev.filter((post) => post.id !== numericId)
-      );
+      await storage.deletePost(id);
+      setPosts((prev) => prev.filter((post) => post.id !== id));
+      setFilteredPosts((prev) => prev.filter((post) => post.id !== id));
     } catch (err) {
       setError('Failed to delete post');
       console.error(err);
@@ -149,12 +104,11 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const votePost = async (postId: number | string, userId: string) => {
+  const votePost = async (postId: string, userId: string) => {
     try {
       setLoading(true);
-      const numericId = normalizeId(postId);
       const updatedPosts = posts.map((post) => {
-        if (post.id === numericId) {
+        if (post.id === postId) {
           const hasVoted = post.voters.includes(userId);
           const voters = hasVoted
             ? post.voters.filter((id) => id !== userId)
@@ -163,8 +117,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         }
         return post;
       });
-      await storage.updatePost(numericId.toString(), {
-        voters: updatedPosts.find((p) => p.id === numericId)?.voters,
+      await storage.updatePost(postId, {
+        voters: updatedPosts.find((p) => p.id === postId)?.voters,
       });
       setPosts(updatedPosts);
       setFilteredPosts(updatedPosts);
@@ -176,33 +130,28 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addComment = async (
-    postId: number | string,
-    text: string,
-    userId: string
-  ) => {
+  const addComment = async (postId: string, text: string, userId: string) => {
     try {
       setLoading(true);
-      const numericId = normalizeId(postId);
       const newComment: Comment = {
-        id: Date.now(),
+        id: Date.now().toString(), // string ID
         text,
         authorId: userId,
         date: new Date().toISOString(),
       };
       const updatedPosts = posts.map((post) =>
-        post.id === numericId
+        post.id === postId
           ? { ...post, comments: [...post.comments, newComment] }
           : post
       );
-      await storage.addComment(numericId.toString(), newComment);
+      await storage.addComment(postId, newComment);
       setPosts(updatedPosts);
       setFilteredPosts(updatedPosts);
     } catch (err) {
       setError('Failed to add comment');
       console.error(err);
     } finally {
-      setLoading(false);  // <-- здесь больше нет ошибок на numericId
+      setLoading(false);
     }
   };
 
@@ -213,82 +162,70 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         ? posts.filter(
             (post) =>
               post.title.toLowerCase().includes(normalizedQuery) ||
-              post.orderNumber
-                .toString()
-                .includes(normalizedQuery) ||
-              (post.recoveryCode ?? '')
-                .toLowerCase()
-                .includes(normalizedQuery)
-          )
+              post.orderNumber.toString().includes(normalizedQuery) ||
+              (post.recoveryCode ?? '').toLowerCase().includes(normalizedQuery)
+          ) 
         : posts
     );
   };
 
-  const ratePost = (postId: number | string) => {
-    const numericId = normalizeId(postId);
-    votePost(numericId, 'anonymous').catch(console.error);
+  const ratePost = (postId: string) => {
+    votePost(postId, 'anonymous').catch(console.error);
   };
 
-  const reportPost = (postId: number | string) => {
-    const numericId = normalizeId(postId);
-    console.log(`Reporting post ${numericId}`);
+  const reportPost = (postId: string) => {
+    console.log(`Reporting post ${postId}`);
   };
 
   const sharePostDirect = (
     platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
-    postId: number | string
+    postId: string
   ) => {
-    const numericId = normalizeId(postId);
-    const url = `${window.location.origin}/posts/${numericId}`;
+    const url = `${window.location.origin}/posts/${postId}`;
     const shareUrls = {
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        url
-      )}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        url
-      )}`,
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}`,
       whatsapp: `https://wa.me/?text=${encodeURIComponent(url)}`,
     };
     window.open(shareUrls[platform], '_blank', 'noopener,noreferrer');
   };
 
-  const copyPostLink = (postId: number | string) => {
-    const numericId = normalizeId(postId);
-    const url = `${window.location.origin}/posts/${numericId}`;
+  const copyPostLink = (postId: string) => {
+    const url = `${window.location.origin}/posts/${postId}`;
     navigator.clipboard
       .writeText(url)
       .then(() => console.log('Link copied'))
       .catch(console.error);
   };
 
-  const downloadPostImage = (postId: number | string) => {
-    const numericId = normalizeId(postId);
-    console.log(`Downloading image for post ${numericId}`);
+  const downloadPostImage = (postId: string) => {
+    console.log(`Downloading image for post ${postId}`);
   };
 
   return (
-    <PostsContext.Provider
-      value={{
-        posts,
-        filteredPosts,
-        loading,
-        error,
-        searchPosts,
-        addPost,
-        editPost,
-        deletePost,
-        getPost: (id) => posts.find((post) => post.id === normalizeId(id)),
-        votePost,
-        addComment,
-        ratePost,
-        reportPost,
-        sharePostDirect,
-        copyPostLink,
-        downloadPostImage,
-        setFilteredPosts,
-      }}
-    >
+    <PostsContext.Provider value={{
+      posts,
+      filteredPosts,
+      loading,
+      error,
+      addPost,
+      editPost,
+      deletePost,
+      getPost: (id) => posts.find(p => p.id === id),
+      votePost,
+      addComment,
+      searchPosts: (query) => {
+        const q = query.toLowerCase();
+        setFilteredPosts(posts.filter(p => 
+          p.title.toLowerCase().includes(q) || 
+          p.content.toLowerCase().includes(q)
+        ));
+      },
+      setFilteredPosts,
+      sortType,
+      setSortType,
+    }}>
       {children}
     </PostsContext.Provider>
   );
@@ -296,7 +233,6 @@ export function PostsProvider({ children }: { children: ReactNode }) {
 
 export function usePosts() {
   const context = useContext(PostsContext);
-  if (!context)
-    throw new Error('usePosts must be used within PostsProvider');
+  if (!context) throw new Error('usePosts must be used within PostsProvider');
   return context;
 }

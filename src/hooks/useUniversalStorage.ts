@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 
-export const useUniversalStorage = <T>(key: string, initialValue: T) => {
-  // 1) Инициализация состояния — только в браузере читаем localStorage
+export const useUniversalStorage = <T,>(key: string, initialValue: T): [T, (newValue: T) => Promise<void>] => {
   const [value, setValue] = useState<T>(() => {
     if (typeof window !== "undefined" && window.localStorage) {
       const localData = window.localStorage.getItem(key);
@@ -13,7 +12,6 @@ export const useUniversalStorage = <T>(key: string, initialValue: T) => {
     return initialValue;
   });
 
-  // 2) Синхронизация с Firestore, когда ключ или value изменятся
   useEffect(() => {
     if (typeof window === "undefined") return;
     const user = auth.currentUser;
@@ -39,7 +37,6 @@ export const useUniversalStorage = <T>(key: string, initialValue: T) => {
     syncWithFirebase();
   }, [key, value]);
 
-  // 3) Обновление и в localStorage, и в Firestore
   const setValueUniversal = async (newValue: T) => {
     setValue(newValue);
     if (typeof window !== "undefined" && window.localStorage) {
@@ -59,5 +56,5 @@ export const useUniversalStorage = <T>(key: string, initialValue: T) => {
     }
   };
 
-  return [value, setValueUniversal] as const;
+  return [value, setValueUniversal];
 };

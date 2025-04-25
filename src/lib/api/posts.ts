@@ -9,51 +9,31 @@ import {
   DocumentData,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Post } from "@/types/post";
+import { Post, Comment } from "@/types/post";
 
-/**
- * Получить все посты из Firestore.
- */
 export async function fetchPosts(): Promise<Post[]> {
   const snapshot = await getDocs(collection(db, "posts"));
-  return snapshot.docs.map((docSnap) => {
-    const data = docSnap.data() as Omit<Post, "id">;
-    return {
-      id: docSnap.id,        // id всегда строка
-      ...data,
-    };
-  });
+  return snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...(docSnap.data() as Omit<Post, "id">),
+    comments: (docSnap.data().comments || []).map((c: any) => ({
+      id: String(c.id),
+      text: c.text,
+      authorId: c.authorId,
+      date: c.date || new Date().toISOString(),
+    })),
+  }));
 }
 
-/**
- * Добавить новый пост. 
- * Принимает объект без id, возвращает созданный id (строка).
- */
-export async function createPost(
-  post: Omit<Post, "id">
-): Promise<string> {
-  // колекция "posts"
-  const colRef = collection(db, "posts");
-  // добавляем, Firestore сам генерирует строковый ID
-  const docRef = await addDoc(colRef, post as DocumentData);
-  return docRef.id;         // возвращаем string
+export async function createPost(post: Omit<Post, "id">): Promise<string> {
+  const docRef = await addDoc(collection(db, "posts"), post as DocumentData);
+  return docRef.id;
 }
 
-/**
- * Обновить существующий пост по его строковому id.
- */
-export async function updatePost(
-  id: string,
-  updates: Partial<Omit<Post, "id">>
-): Promise<void> {
-  const docRef = doc(db, "posts", id);
-  await updateDoc(docRef, updates as DocumentData);
+export async function updatePost(id: string, updates: Partial<Post>): Promise<void> {
+  await updateDoc(doc(db, "posts", id), updates as DocumentData);
 }
 
-/**
- * Удалить пост по строковому id.
- */
 export async function deletePostById(id: string): Promise<void> {
-  const docRef = doc(db, "posts", id);
-  await deleteDoc(docRef);
+  await deleteDoc(doc(db, "posts", id));
 }

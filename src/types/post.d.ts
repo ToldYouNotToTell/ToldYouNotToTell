@@ -1,18 +1,18 @@
 // src/types/post.d.ts
 
 export interface Comment {
-  id: number;
+  id: string;
   text: string;
   authorId: string;
   date: string;
 }
 
 export interface Post {
-  id: number;
+  id: string; // Меняем number на string
   title: string;
+  date: string;
   content: string;
   voters: string[];
-  date: string;
   comments: Comment[];
   orderNumber: number;
   authorId?: string;
