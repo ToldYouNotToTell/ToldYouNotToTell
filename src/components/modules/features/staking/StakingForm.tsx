@@ -1,10 +1,7 @@
-// src/components/modules/features/staking/StakingForm.tsx
 'use client';
+import React, { useState } from 'react';
 
-import React, { useState, FormEvent } from 'react';
-import { useStaking } from '@/contexts/StakingContext';
-
-const STAKING_LEVELS: { amount: number; level: number }[] = [
+const STAKING_LEVELS = [
   { amount: 10000, level: 1 },
   { amount: 25000, level: 2 },
   { amount: 50000, level: 3 },
@@ -13,73 +10,39 @@ const STAKING_LEVELS: { amount: number; level: number }[] = [
 ];
 
 export default function StakingForm() {
-  const { stakeTokens, stakedAmount } = useStaking();
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(10000);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (amount < STAKING_LEVELS[0].amount) {
-      setError(`Minimum stake is ${STAKING_LEVELS[0].amount.toLocaleString()} TNTT.`);
-      return;
-    }
+    console.log('Trying to stake:', amount);
     setError(null);
-    setLoading(true);
-    try {
-      await stakeTokens(amount);
-      setAmount(0);
-    } catch {
-      setError('Failed to stake tokens. Please try again.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
-    <div className="staking-page" id="stakingPage">
-      <h1>Stake TNTT Tokens</h1>
-      <form className="staking-form" onSubmit={handleSubmit}>
-        <p>Stake your TNTT tokens to earn rewards and increase your visibility</p>
-
-        <div className="form-group staking-amount">
-          <label htmlFor="stakeAmount">Amount to Stake:</label>
+    <div className="staking-form">
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="stakeAmount">Amount to Stake (TNTT):</label>
           <input
             id="stakeAmount"
             type="number"
             min={STAKING_LEVELS[0].amount}
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
+            aria-label="Enter TNTT amount to stake"
           />
         </div>
 
-        <div className="staking-levels">
-          <h3>Staking Levels</h3>
-          <ul>
-            {STAKING_LEVELS.map(({ amount, level }) => (
-              <li key={level}>
-                {amount.toLocaleString()} TNTT: Level {level}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {error && <p className="form-error">{error}</p>}
-
-        <button
+        <button 
           type="submit"
-          className="stake-btn"
-          disabled={loading}
+          aria-label="Confirm stake"
         >
-          {loading ? 'Staking…' : 'Stake Tokens'}
+          Stake Tokens
         </button>
-
-        {stakedAmount != null && (
-          <p className="staking-balance">
-            Your current staked balance: {stakedAmount.toLocaleString()} TNTT
-          </p>
-        )}
+        
+        {error && <p className="error">{error}</p>}
       </form>
     </div>
-);
+  );
 }

@@ -1,10 +1,6 @@
 # Разрешаем трекинг файла с правилами Firestore
 !firestore.rules
 
-# Зависимости
-/node_modules
-/functions/node_modules
-
 # Сборка Next.js
 /.next
 /out
@@ -27,3 +23,13 @@ pnpm-debug.log*
 # Системные файлы
 .DS_Store
 Thumbs.db
+
+# TypeScript
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Node.js
+node_modules/
+/functions/node_modules
+package-lock.json
+dist/

@@ -1,110 +1,81 @@
 // src/contexts/Web3Context.tsx
-"use client";
+'use client';
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import { UniversalStorage } from "@/lib/api/universalStorage";
-import html2canvas from "html2canvas";
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { useUniversalStorage } from '@/hooks/useUniversalStorage';
 
-export interface Web3ContextType {
-  /** Запрос на подключение кошелька */
+interface Web3ContextValue {
   connectWallet: () => Promise<void>;
-  /** Отключение кошелька */
   disconnectWallet: () => void;
-  /** Публичный ключ (null, если не подключены) */
-  publicKey: PublicKey | null;
-  /** true, если кошелёк подключён */
+  walletAddress: string | null;
   isConnected: boolean;
-  /** Универсальное хранилище */
-  storage: UniversalStorage;
-  /** Захват скриншота DOM-элемента */
-  captureScreenshot: (element: HTMLElement, filename: string) => Promise<void>;
-  /** Сохранение текстового файла */
-  downloadTextFile: (filename: string, content: string) => void;
 }
 
-const Web3Context = createContext<Web3ContextType | undefined>(undefined);
+const Web3Context = createContext<Web3ContextValue | null>(null);
 
-export function Web3Provider({ children }: { children: ReactNode }) {
-  const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
-  const [connection, setConnection] = useState<Connection | null>(null);
-  const [storage] = useState(new UniversalStorage());
-  const [wallet] = useState(new PhantomWalletAdapter());
+interface Web3ProviderProps {
+  children: ReactNode;
+}
 
+export const Web3Provider = ({ children }: Web3ProviderProps) => {
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [storedWallet, setStoredWallet] = useUniversalStorage<string | null>(
+    'phantomWallet',
+    null
+  );
+
+  // Восстановление сессии при загрузке
   useEffect(() => {
-    wallet.on("connect", (pubkey: PublicKey) => {
-      setPublicKey(pubkey);
-      setConnection(new Connection(clusterApiUrl("mainnet-beta"), "confirmed"));
-    });
-    wallet.on("disconnect", () => {
-      setPublicKey(null);
-      setConnection(null);
-    });
-    return () => {
-      wallet.disconnect();
-    };
-  }, [wallet]);
+    if (storedWallet) {
+      setWalletAddress(storedWallet);
+      setIsConnected(true);
+    }
+  }, [storedWallet]);
 
+  // Подключение Phantom
   const connectWallet = async () => {
+    if (!window.solana?.isPhantom) {
+      window.open('https://phantom.app/', '_blank');
+      throw new Error('Phantom wallet not installed');
+    }
+
     try {
-      await wallet.connect();
+      const response = await window.solana.connect();
+      const publicKey = response.publicKey.toString();
+      setWalletAddress(publicKey);
+      setIsConnected(true);
+      setStoredWallet(publicKey);
     } catch (error) {
-      console.error("Connection error:", error);
+      console.error('Connection error:', error);
+      throw new Error('Failed to connect wallet');
     }
   };
 
-  const disconnectWallet = async () => {
-    await wallet.disconnect();
+  // Отключение Phantom
+  const disconnectWallet = () => {
+    if (window.solana?.disconnect) {
+      window.solana.disconnect().catch(console.error);
+    }
+    setWalletAddress(null);
+    setIsConnected(false);
+    setStoredWallet(null);
   };
 
-  const captureScreenshot = async (element: HTMLElement, filename: string) => {
-    const canvas = await html2canvas(element);
-    const link = document.createElement("a");
-    link.download = `${filename}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+  const value: Web3ContextValue = {
+    connectWallet,
+    disconnectWallet,
+    walletAddress,
+    isConnected,
   };
 
-  const downloadTextFile = (filename: string, content: string) => {
-    const element = document.createElement("a");
-    element.setAttribute(
-      "href",
-      "data:text/plain;charset=utf-8," + encodeURIComponent(content)
-    );
-    element.setAttribute("download", filename);
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
+  return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;
+};
 
-  return (
-    <Web3Context.Provider
-      value={{
-        connectWallet,
-        disconnectWallet,
-        publicKey,
-        isConnected: !!publicKey,
-        storage,
-        captureScreenshot,
-        downloadTextFile,
-      }}
-    >
-      {children}
-    </Web3Context.Provider>
-  );
-}
-
-export function useWeb3() {
+export const useWeb3 = () => {
   const context = useContext(Web3Context);
   if (!context) {
-    throw new Error("useWeb3 must be used within Web3Provider");
+    throw new Error('useWeb3 must be used within Web3Provider');
   }
   return context;
-}
+};
