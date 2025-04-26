@@ -9,12 +9,13 @@
     "lint": "next lint --dir . --file .eslintrc.json",
     "lint:fix": "next lint --dir . --file .eslintrc.json --fix",
     "clean": "rimraf .next node_modules package-lock.json",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "doctor": "ncu --doctor -u --doctorTest \"next build\""
   },
   "dependencies": {
     "@solana/wallet-adapter-base": "^0.9.26",
     "@solana/wallet-adapter-phantom": "^0.9.27",
-    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react": "^0.15.38",
     "@solana/wallet-adapter-react-ui": "^0.9.38",
     "@solana/web3.js": "^1.98.2",
     "axios": "^1.6.8",
