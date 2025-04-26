@@ -18,7 +18,7 @@ export type PostsContextType = {
   getPost: (id: string) => Post | undefined;
   votePost: (postId: string, userId: string) => Promise<void>;
   addComment: (postId: string, text: string, userId: string) => Promise<void>;
-  ratePost: (postId: string) => Promise<void>; // Добавлено
+  ratePost: (postId: string) => Promise<void>;
   setFilteredPosts: React.Dispatch<React.SetStateAction<Post[]>>;
   sortType: SortType;
   setSortType: React.Dispatch<React.SetStateAction<SortType>>;
@@ -57,14 +57,14 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const newPost = {
         ...post,
+        id: Date.now().toString(),
         date: new Date().toISOString(),
         voters: [],
         comments: [],
       };
-      const id = await storage.addPost(newPost);
-      const createdPost = { ...newPost, id };
-      setPosts(prev => [createdPost, ...prev]);
-      setFilteredPosts(prev => [createdPost, ...prev]);
+      await storage.addPost(newPost);
+      setPosts(prev => [newPost, ...prev]);
+      setFilteredPosts(prev => [newPost, ...prev]);
     } catch (err) {
       setError('Failed to create post');
       console.error(err);
@@ -77,11 +77,11 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       await storage.updatePost(id, updates);
-      setPosts((prev) =>
-        prev.map((post) => (post.id === id ? { ...post, ...updates } : post))
+      setPosts(prev =>
+        prev.map(post => (post.id === id ? { ...post, ...updates } : post))
       );
-      setFilteredPosts((prev) =>
-        prev.map((post) => (post.id === id ? { ...post, ...updates } : post))
+      setFilteredPosts(prev =>
+        prev.map(post => (post.id === id ? { ...post, ...updates } : post))
       );
     } catch (err) {
       setError('Failed to update post');
@@ -95,8 +95,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       await storage.deletePost(id);
-      setPosts((prev) => prev.filter((post) => post.id !== id));
-      setFilteredPosts((prev) => prev.filter((post) => post.id !== id));
+      setPosts(prev => prev.filter(post => post.id !== id));
+      setFilteredPosts(prev => prev.filter(post => post.id !== id));
     } catch (err) {
       setError('Failed to delete post');
       console.error(err);
@@ -108,18 +108,18 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   const votePost = async (postId: string, userId: string): Promise<void> => {
     try {
       setLoading(true);
-      const updatedPosts = posts.map((post) => {
+      const updatedPosts = posts.map(post => {
         if (post.id === postId) {
           const hasVoted = post.voters.includes(userId);
           const voters = hasVoted
-            ? post.voters.filter((id) => id !== userId)
+            ? post.voters.filter(id => id !== userId)
             : [...post.voters, userId];
           return { ...post, voters };
         }
         return post;
       });
       await storage.updatePost(postId, {
-        voters: updatedPosts.find((p) => p.id === postId)?.voters,
+        voters: updatedPosts.find(p => p.id === postId)?.voters,
       });
       setPosts(updatedPosts);
       setFilteredPosts(updatedPosts);
@@ -135,12 +135,12 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       const newComment: Comment = {
-        id: Date.now().toString(), // string ID
+        id: Date.now().toString(),
         text,
         authorId: userId,
         date: new Date().toISOString(),
       };
-      const updatedPosts = posts.map((post) =>
+      const updatedPosts = posts.map(post =>
         post.id === postId
           ? { ...post, comments: [...post.comments, newComment] }
           : post
@@ -161,78 +161,47 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     setFilteredPosts(
       normalizedQuery
         ? posts.filter(
-            (post) =>
+            post =>
               post.title.toLowerCase().includes(normalizedQuery) ||
               post.orderNumber.toString().includes(normalizedQuery) ||
               (post.recoveryCode ?? '').toLowerCase().includes(normalizedQuery)
-          ) 
+          )
         : posts
     );
   };
 
   const ratePost = async (postId: string): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        setLoading(true);
-        await votePost(postId, 'anonymous');
-        resolve();
-      } catch (error) {
-        console.error('Rating failed:', error);
-        reject(error);
-      } finally {
-        setLoading(false);
-      }
-    });
-  };
-
-  const reportPost = (postId: string) => {
-    console.log(`Reporting post ${postId}`);
-  };
-
-  const sharePostDirect = (
-    platform: 'twitter' | 'facebook' | 'telegram' | 'whatsapp',
-    postId: string
-  ) => {
-    const url = `${window.location.origin}/posts/${postId}`;
-    const shareUrls = {
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-      telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}`,
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(url)}`,
-    };
-    window.open(shareUrls[platform], '_blank', 'noopener,noreferrer');
-  };
-
-  const copyPostLink = (postId: string) => {
-    const url = `${window.location.origin}/posts/${postId}`;
-    navigator.clipboard
-      .writeText(url)
-      .then(() => console.log('Link copied'))
-      .catch(console.error);
-  };
-
-  const downloadPostImage = (postId: string) => {
-    console.log(`Downloading image for post ${postId}`);
+    try {
+      setLoading(true);
+      await votePost(postId, 'anonymous');
+    } catch (error) {
+      console.error('Rating failed:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <PostsContext.Provider value={{
-      posts,
-      filteredPosts,
-      loading,
-      error,
-      addPost,
-      editPost,
-      deletePost,
-      getPost: (id) => posts.find(p => p.id === id),
-      votePost,
-      addComment,
-      ratePost, // Теперь точно возвращает Promise<void>
-      searchPosts,
-      setFilteredPosts,
-      sortType,
-      setSortType,
-    }}>
+    <PostsContext.Provider
+      value={{
+        posts,
+        filteredPosts,
+        loading,
+        error,
+        searchPosts,
+        addPost,
+        editPost,
+        deletePost,
+        getPost: id => posts.find(p => p.id === id),
+        votePost,
+        addComment,
+        ratePost,
+        setFilteredPosts,
+        sortType,
+        setSortType,
+      }}
+    >
       {children}
     </PostsContext.Provider>
   );

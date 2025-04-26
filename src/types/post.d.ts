@@ -1,4 +1,5 @@
 // src/types/post.d.ts
+import { BoostTier } from './web3';
 
 export interface Comment {
   id: string;
@@ -8,7 +9,7 @@ export interface Comment {
 }
 
 export interface Post {
-  id: string; // Меняем number на string
+  id: string;
   title: string;
   date: string;
   content: string;
@@ -25,11 +26,4 @@ export interface Post {
   moderatedBy?: string;
   moderatorNote?: string;
   recoveryCode?: string;
-}
-
-export interface BoostTier {
-  id: number;
-  name: 'Basic' | 'Start+' | 'Advanced' | 'Premium' | 'Elite' | 'Sponsor';
-  amount: number;
-  color: string;
 }

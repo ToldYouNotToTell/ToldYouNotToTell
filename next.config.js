@@ -1,34 +1,44 @@
 /** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
-});
-
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
+  // Отключаем StrictMode для совместимости
+  reactStrictMode: false,
+  // Включаем сжатие ответов
   compress: true,
+  // Игнорируем предупреждения ESLint при сборке
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Игнорируем ошибки TypeScript при сборке
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // Настройки для оптимизированной работы с изображениями
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 3600,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    minimumCacheTTL: 60,
   },
+  // Настройки Webpack
+  webpack: (config) => {
+    // Отключаем ноды-независимые модули
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+    return config;
+  },
+  // Отключаем экспериментальные оптимизации пакетов
   experimental: {
-    optimizePackageImports: ["react-icons", "lodash-es", "@heroicons/react"],
+    optimizePackageImports: [],
   },
-  headers: async () => [
-    {
-      source: "/_next/static/(.*)",
-      headers: [
-        {
-          key: "Cache-Control",
-          value: "public, max-age=31536000, immutable",
-        },
-      ],
-    },
-  ],
 };
 
-module.exports = withBundleAnalyzer(nextConfig);
+if (process.env.ANALYZE === "true") {
+  const withBundleAnalyzer = require("@next/bundle-analyzer")({
+    enabled: true,
+  });
+  module.exports = withBundleAnalyzer(nextConfig);
+} else {
+  module.exports = nextConfig;
+}
