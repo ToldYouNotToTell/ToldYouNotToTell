@@ -43,8 +43,8 @@
 
 body {
   font-family: "Tahoma", sans-serif;
-  background: url("https://imagizer.imageshack.com/img924/2739/6DOg7G.jpg")
-    no-repeat center center fixed;
+  background: url("/backgrounds/background.webp") no-repeat center center fixed;
+  background-size: cover;
   background-size: cover;
   color: var(--text-color);
   min-height: 100vh;

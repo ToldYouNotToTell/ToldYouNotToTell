@@ -7,6 +7,7 @@
     "lint": "next lint --dir . --file .eslintrc.json",
     "lint:fix": "next lint --dir . --file .eslintrc.json --fix",
     "build": "next build",
+    "analyze": "ANALYZE=true next build",
     "start": "next start",
     "clean": "rimraf .next node_modules package-lock.json"
   },
@@ -30,14 +31,20 @@
   "devDependencies": {
     "@heroicons/react": "^2.2.0",
     "@next/bundle-analyzer": "^15.3.1",
+    "@tailwindcss/postcss": "^4.1.4",
     "@types/node": "20.8.7",
     "@types/react": "18.2.45",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
+    "autoprefixer": "^10.4.21",
+    "cross-env": "^7.0.3",
     "eslint": "^9.25.1",
     "eslint-config-next": "^15.3.1",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-react": "^7.37.5"
+    "eslint-plugin-react": "^7.37.5",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3"
   },
   "description": "Платформа для анонимного сторителлинга с интеграцией Phantom Wallet, токеном TYNTT и системой ежедневных наград.",
   "main": "next.config.js",
