@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import html2canvas from 'html2canvas';
+import * as htmlToImage from 'html-to-image'; // Изменённый импорт
 import { ReactIcon } from '@/components/ui/icons/ReactIcon';
 import type { Post } from '@/types/post';
 
@@ -19,15 +19,20 @@ export default function ScreenshotModal({
 
   const handleDownload = async () => {
     if (!contentRef.current) return;
-    // Рендерим элемент в канвас
-    const canvas = await html2canvas(contentRef.current);
-    // Создаём ссылку для скачивания
-    const link = document.createElement('a');
-    link.download = `ToldYouNotToTell-post-${post.id}.png`;
-    link.href = canvas.toDataURL('image/png');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    
+    try {
+      // Используем конкретный метод (toPng, toJpeg, etc.)
+      const dataUrl = await htmlToImage.toPng(contentRef.current);
+      
+      const link = document.createElement('a');
+      link.download = `ToldYouNotToTell-post-${post.id}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error generating image:', error);
+    }
   };
 
   return (
@@ -41,8 +46,7 @@ export default function ScreenshotModal({
       </button>
 
       <div className="screenshot-content" ref={contentRef}>
-        {/* Здесь ваш компонент предпросмотра, например: */}
-        {/* <PostCard post={post} /> */}
+        {/* Ваш контент для скриншота */}
       </div>
 
       <button className="download-screenshot" onClick={handleDownload}>

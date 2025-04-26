@@ -1,5 +1,7 @@
 {
-    "projects": {
-      "default": "toldyounottotell"
-    }
-  }  
+  "projects": {
+    "default": "toldyounottotell"
+  },
+  "targets": {},
+  "etags": {}
+}

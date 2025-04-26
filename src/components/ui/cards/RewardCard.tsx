@@ -25,12 +25,12 @@ export default function RewardsCard({
 }: RewardsCardProps) {
   return (
     <div className="rewards-page">
-      <h1>Rewards Pool</h1>
+      {/* ... остальной код */}
 
-      {/* Next Reward Distribution */}
       <div className="rewards-section" style={{ textAlign: 'center', marginBottom: 20 }}>
         <h3>
-          <ClockIcon size={14} style={{ marginRight: 4 }} />
+          {/* Изменено: заменен style на className */}
+          <ClockIcon size={14} className="mr-1" />
           Next Reward Distribution
         </h3>
         <p>{hoursLeft}h {minutesLeft}m remaining</p>

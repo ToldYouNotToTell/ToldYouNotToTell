@@ -21,7 +21,15 @@ export interface Post {
   boostAmount?: number;
   boostTime?: number;
   currentBoostWeight?: number;
+  boostTier?: BoostTier | null;
   moderatedBy?: string;
   moderatorNote?: string;
   recoveryCode?: string;
+}
+
+export interface BoostTier {
+  id: number;
+  name: 'Basic' | 'Start+' | 'Advanced' | 'Premium' | 'Elite' | 'Sponsor';
+  amount: number;
+  color: string;
 }

@@ -1,5 +1,5 @@
 import { Post } from "@/types/post";
-import { generateRecoveryCode } from "./recovery";
+import { generateRecoveryCode } from "@/lib/utils/recovery";
 
 export function canEditPost(
   post: Post,
@@ -8,7 +8,7 @@ export function canEditPost(
 ): boolean {
   const isAuthor = walletAddress
     ? post.authorWallet === walletAddress
-    : post.authorIP === userIP;
+    : post.authorId === userIP;
 
   const threeHours = 3 * 60 * 60 * 1000;
   const timePassed = Date.now() - new Date(post.date).getTime();
@@ -26,15 +26,15 @@ export function initializeNewPost(
   const recoveryCode = generateRecoveryCode();
 
   const post: Post = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     title,
     content,
     category,
     voters: [],
-    date: new Date(),
+    date: new Date().toISOString(),
     comments: [],
-    orderNumber: 0, // Будет обновлено при сохранении
-    authorIP: walletAddress ? undefined : userIP,
+    orderNumber: 0,
+    authorId: walletAddress ? undefined : userIP,
     authorWallet: walletAddress || undefined,
   };
 

@@ -3,17 +3,17 @@
 
 import React from 'react';
 import type { Post } from '@/types/post';
-import BoostButton from '@/components/ui/buttons/BoostButton'
+import BoostButton from '@/components/ui/buttons/BoostButton';
 
 export type PostActionsProps = {
-  post: Post; // Используем весь объект
+  post: Post;
   isAuthor: boolean;
 };
 
 export default function PostActions({ post, isAuthor }: PostActionsProps) {
   return (
     <div className="post-actions">
-      {isAuthor && <BoostButton postId={Number(post.id)} />} // Приводим к number
+      {isAuthor && <BoostButton postId={post.id} />} {/* Убрали Number() */}
     </div>
   );
 }

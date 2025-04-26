@@ -15,7 +15,7 @@ export default function MainPage() {
   const handleSubmit = async (postData: Omit<Post, 'id' | 'date' | 'voters' | 'comments' | 'orderNumber'>) => {
     await addPost({
       ...postData,
-      orderNumber: posts.length + 1, // Добавляем orderNumber вручную
+      orderNumber: posts.length + 1,
     });
     setFormOpen(false);
   };

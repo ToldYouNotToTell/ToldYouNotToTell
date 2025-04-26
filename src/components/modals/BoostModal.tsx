@@ -12,12 +12,12 @@ export type BoostModalProps = {
 };
 
 export default function BoostModal({ onClose, onBoost }: BoostModalProps) {
+  const { isPhantomInstalled, connectWallet, walletAddress, isConnected } = useWeb3();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { connectWallet, walletAddress, isConnected } = useWeb3();
 
   const handleConfirm = async () => {
-    if (selectedAmount === null || !isConnected) return;
+    if (selectedAmount === null) return;
     
     setIsLoading(true);
     try {
@@ -25,7 +25,7 @@ export default function BoostModal({ onClose, onBoost }: BoostModalProps) {
       onClose();
     } catch (error) {
       console.error('Boost failed:', error);
-      alert(`Boost failed: ${error instanceof Error ? error.message : String(error)}`);
+      alert(`Boost failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +45,18 @@ export default function BoostModal({ onClose, onBoost }: BoostModalProps) {
 
         <h2>Boost Your Post</h2>
 
-        {!isConnected ? (
+        {!isPhantomInstalled ? (
+          <div className="wallet-connect-prompt">
+            <p>Phantom wallet is not installed</p>
+            <button
+              type="button"
+              className="btn-connect"
+              onClick={() => window.open('https://phantom.app/', '_blank')}
+            >
+              <ReactIcon name="external-link-alt" prefix="fas" /> Install Phantom
+            </button>
+          </div>
+        ) : !isConnected ? (
           <div className="wallet-connect-prompt">
             <p>Connect your Phantom wallet to boost:</p>
             <button
@@ -53,7 +64,7 @@ export default function BoostModal({ onClose, onBoost }: BoostModalProps) {
               className="btn-connect"
               onClick={connectWallet}
             >
-              <ReactIcon name="wallet" prefix="fas" /> Connect Phantom
+              <ReactIcon name="wallet" prefix="fas" /> Connect Wallet
             </button>
           </div>
         ) : (
@@ -63,14 +74,14 @@ export default function BoostModal({ onClose, onBoost }: BoostModalProps) {
                 <div
                   key={tier.name}
                   className={`boost-option ${
-                    selectedAmount === tier.minWeight ? 'selected' : ''
+                    selectedAmount === tier.minAmount ? 'selected' : ''
                   }`}
-                  onClick={() => setSelectedAmount(tier.minWeight)}
+                  onClick={() => setSelectedAmount(tier.minAmount)}
                 >
                   <div className="boost-option__name">{tier.name}</div>
                   <div className="boost-option__price">
-                    {tier.minWeight} SOL
-                    {tier.maxWeight === Infinity ? '+' : `–${tier.maxWeight}`}
+                    {tier.minAmount} SOL
+                    {tier.maxAmount === Infinity ? '+' : `–${tier.maxAmount}`}
                   </div>
                   <div className="boost-option__decay">
                     Decay: {(tier.decayRate * 100).toFixed(0)}%/hr

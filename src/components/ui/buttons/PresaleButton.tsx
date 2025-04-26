@@ -1,25 +1,19 @@
-// src/components/buttons/PresaleButton.tsx
-'use client';
 import React from 'react';
-import { showPresaleModal } from '@/lib/uiActions';
+import { useWallet } from '@/hooks/useWallet';
+import styles from './buttonStyles.module.css';
 
-export default function PresaleButton() {
+export const PresaleButton = () => {
+  const { setShowPresaleModal } = useWallet();
+
   return (
-    <button 
-      className="presale-btn" 
-      onClick={showPresaleModal}
-      style={{
-        padding: '10px 20px',
-        background: '#6e45ff',
-        color: 'white',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        fontSize: '16px'
-      }}
+    <button
+      onClick={() => setShowPresaleModal(true)}
+      className={styles.presaleButton}
     >
-      <i className="fas fa-coins" style={{ marginRight: '8px' }}></i> 
+      <i className="fas fa-coins"></i>
       Presale
     </button>
   );
-}
+};
+
+export default PresaleButton;

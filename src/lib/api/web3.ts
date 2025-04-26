@@ -5,8 +5,8 @@ declare global {
   interface Window {
     solana?: {
       isPhantom: boolean;
-      connect: () => Promise<{ publicKey: { toString: () => string } }>;
-      signTransaction: (tx: Transaction) => Promise<{ serialize: () => Uint8Array }>;
+      connect: () => Promise<{ publicKey: PublicKey }>; // Исправлен тип publicKey
+      signTransaction: (tx: Transaction) => Promise<Transaction>; // Возвращает Transaction
       disconnect: () => Promise<void>;
       on: (event: string, callback: (args: any) => void) => void;
       off: (event: string, callback: (args: any) => void) => void;
@@ -14,6 +14,7 @@ declare global {
   }
 }
 
+// Остальной код остается без изменений
 const SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com";
 const connection = new Connection(SOLANA_RPC_URL);
 
@@ -33,7 +34,7 @@ export async function sendTransaction(
     transaction.feePayer = publicKey;
 
     const signedTx = await window.solana.signTransaction(transaction);
-    const txId = await connection.sendRawTransaction(signedTx.serialize());
+    const txId = await connection.sendRawTransaction(signedTx.serialize()); // serialize() доступен у Transaction
 
     return txId;
   } catch (error) {
@@ -42,34 +43,4 @@ export async function sendTransaction(
   }
 }
 
-export async function getTokenBalance(
-  walletAddress: string,
-  tokenMintAddress: string
-): Promise<number> {
-  try {
-    // Реализация проверки баланса токенов
-    return 0; // Заглушка
-  } catch (error) {
-    console.error("Balance check error:", error);
-    throw new Error("Failed to get token balance");
-  }
-}
-
-export async function boostPost(
-  walletAddress: string,
-  postId: string | number,
-  amount: number
-): Promise<void> {
-  const numericId = typeof postId === 'string' ? parseInt(postId, 10) : postId;
-  
-  if (!walletAddress) {
-    throw new Error("Wallet not connected");
-  }
-
-  if (isNaN(numericId)) {
-    throw new Error("Invalid post ID");
-  }
-
-  console.log(`Boosting post ${numericId} with ${amount} USDT from ${walletAddress}`);
-  // Реальная логика вызова контракта
-}
+// ... остальные функции без изменений

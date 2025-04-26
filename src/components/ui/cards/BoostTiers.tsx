@@ -2,8 +2,11 @@
 'use client';
 
 import React from 'react';
-import type { BoostTier } from '@/lib/utils/boost';
-import { calculateBoostWeight, getBoostTier } from '@/lib/utils/boost';
+import { 
+  BoostTier, 
+  calculateBoostWeight, 
+  getBoostTier 
+} from '@/lib/utils/boost';
 
 type BoostTiersProps = {
   /** Изначальная сумма буста (USD) */
@@ -12,12 +15,6 @@ type BoostTiersProps = {
   boostStartTime: number;
 };
 
-/**
- * Компонент отображает текущее состояние буста:
- * - Название уровня
- * - Текущий вес
- * - Диапазон позиций и decay-rate
- */
 export function BoostTiers({ boostAmount, boostStartTime }: BoostTiersProps) {
   const tier = getBoostTier(boostAmount);
   const currentWeight = calculateBoostWeight(boostAmount, boostStartTime);
@@ -32,14 +29,14 @@ export function BoostTiers({ boostAmount, boostStartTime }: BoostTiersProps) {
   }
 
   return (
-    <div className="boost-tier-card">
+    <div className={`boost-tier-card ${tier.name.toLowerCase().replace(' ', '-')}`}>
       <h4>{tier.name}</h4>
       <p>
-        Current weight: <strong>{currentWeight.toFixed(2)}</strong> TNTT
+        Current weight: <strong>{currentWeight.toFixed(2)}</strong> USD
       </p>
       <p>
-        Positions: {tier.trendingPositionRange![0]} –{' '}
-        {tier.trendingPositionRange![1]}
+        Positions: {tier.trendingPositionRange[0]} –{' '}
+        {tier.trendingPositionRange[1]}
       </p>
       <p>Decay rate: {(tier.decayRate * 100).toFixed(1)}% / hour</p>
       <p>Rotation every {tier.rotationIntervalMinutes} minutes</p>

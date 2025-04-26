@@ -1,25 +1,19 @@
-// src/components/ui/buttons/StakeButton.tsx
-'use client';
-
 import React from 'react';
-import { useWeb3 } from '@/hooks/useWeb3';
-import { ReactIcon } from '@/components/ui/icons/ReactIcon';
+import { useWallet } from '@/hooks/useWallet';
+import styles from './buttonStyles.module.css';
 
-export default function StakeButton() {
-  const { isConnected } = useWeb3();
+export const StakeButton = () => {
+  const { isConnected } = useWallet();
 
   return (
-    <button 
-      className="stake-btn"
-      onClick={() => {
-        if (!isConnected) {
-          alert('Please connect Phantom wallet first!');
-          return;
-        }
-        window.location.href = '/staking';
-      }}
+    <button
+      className={`${styles.button} ${styles.stakeButton}`}
+      disabled={!isConnected}
     >
-      <ReactIcon name="lock" prefix="fas" /> Stake TNTT
+      <i className="fas fa-lock"></i>
+      Stake TNTT
     </button>
   );
-}
+};
+
+export default StakeButton;

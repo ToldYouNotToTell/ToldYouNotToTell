@@ -7,7 +7,6 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "types": ["@solana/wallet-adapter-base"],
     "noImplicitAny": true,
     "strictNullChecks": true,
     "esModuleInterop": true,

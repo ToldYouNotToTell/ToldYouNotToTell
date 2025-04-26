@@ -18,6 +18,7 @@ export type PostsContextType = {
   getPost: (id: string) => Post | undefined;
   votePost: (postId: string, userId: string) => Promise<void>;
   addComment: (postId: string, text: string, userId: string) => Promise<void>;
+  ratePost: (postId: string) => Promise<void>; // Добавлено
   setFilteredPosts: React.Dispatch<React.SetStateAction<Post[]>>;
   sortType: SortType;
   setSortType: React.Dispatch<React.SetStateAction<SortType>>;
@@ -104,7 +105,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const votePost = async (postId: string, userId: string) => {
+  const votePost = async (postId: string, userId: string): Promise<void> => {
     try {
       setLoading(true);
       const updatedPosts = posts.map((post) => {
@@ -123,8 +124,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       setPosts(updatedPosts);
       setFilteredPosts(updatedPosts);
     } catch (err) {
-      setError('Failed to vote');
       console.error(err);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -169,8 +170,19 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const ratePost = (postId: string) => {
-    votePost(postId, 'anonymous').catch(console.error);
+  const ratePost = async (postId: string): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        setLoading(true);
+        await votePost(postId, 'anonymous');
+        resolve();
+      } catch (error) {
+        console.error('Rating failed:', error);
+        reject(error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const reportPost = (postId: string) => {
@@ -215,13 +227,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       getPost: (id) => posts.find(p => p.id === id),
       votePost,
       addComment,
-      searchPosts: (query) => {
-        const q = query.toLowerCase();
-        setFilteredPosts(posts.filter(p => 
-          p.title.toLowerCase().includes(q) || 
-          p.content.toLowerCase().includes(q)
-        ));
-      },
+      ratePost, // Теперь точно возвращает Promise<void>
+      searchPosts,
       setFilteredPosts,
       sortType,
       setSortType,

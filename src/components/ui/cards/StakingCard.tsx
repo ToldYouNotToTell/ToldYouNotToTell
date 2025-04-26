@@ -57,7 +57,7 @@ const StakingCard: FC<StakingCardProps> = ({
 
       <div className="staking-section">
         <h3>
-          <ClockIcon size={14} style={{ marginRight: 4 }} />
+          <ClockIcon size={14} className="mr-1" />
           Daily Reward
         </h3>
         <p>{dailyReward.toFixed(2)} TNTT / day</p>

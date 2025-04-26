@@ -3,12 +3,16 @@
 
 import { FaClock } from 'react-icons/fa';
 
-export default function ClockIcon({
-  size = 16,
-  className = ''
-}: {
+interface ClockIconProps {
   size?: number;
   className?: string;
-}) {
-  return <FaClock size={size} className={className} />;
+  style?: React.CSSProperties; // Добавляем поддержку style
+}
+
+export default function ClockIcon({
+  size = 16,
+  className = '',
+  style = {} // Значение по умолчанию
+}: ClockIconProps) {
+  return <FaClock size={size} className={className} style={style} />;
 }
