@@ -1,4 +1,9 @@
 /* ========== Основные переменные ========== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== Основные переменные ========== */
 :root {
   /* Цвета (тема по умолчанию - темная) */
   --bg-color: #0a0e17;
@@ -43,8 +48,7 @@
 
 body {
   font-family: "Tahoma", sans-serif;
-  background: url("/backgrounds/background.webp") no-repeat center center fixed;
-  background-size: cover;
+  background: url("/background.webp") no-repeat center center fixed;
   background-size: cover;
   color: var(--text-color);
   min-height: 100vh;
