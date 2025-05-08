@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.boost-btn {
+  position: absolute;
+  bottom: 15px;
+  left: 400px;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.boost-btn:hover {
+  color: #14f195;
+}
+
+.boost-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.boost-option {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.boost-option.selected {
+  border-color: var(--primary-color);
+  background: rgba(93, 126, 188, 0.1);
+}
+
+.boost-option:hover {
+  background: rgba(93, 126, 188, 0.05);
+}
+
+.boost-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  width: 40px;
+  text-align: center;
+}
+
+.boost-details {
+  flex: 1;
+}
+
+.boost-details h3 {
+  margin: 0 0 5px 0;
+  color: var(--primary-color);
+}
+
+.boost-details p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.boost-details small {
+  color: var(--icon-color);
+}
+
+.boost-confirm {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.boost-confirm:hover {
+  opacity: 0.9;
+}

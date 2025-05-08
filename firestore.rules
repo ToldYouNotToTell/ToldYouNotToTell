@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===== Правила для постов =====
+    match /posts/{postId} {
+      // Чтение разрешено всем
+      allow read: if true;
+      
+      // Создание поста
+      allow create: if (
+        // Обязательные поля
+        request.resource.data.title is string &&
+        request.resource.data.content is string &&
+        // Автор определяется по IP или кошельку
+        (request.resource.data.authorIp is string || 
+         request.resource.data.authorWallet is string) &&
+        // Дата должна быть Timestamp
+        request.resource.data.date is timestamp
+      );
+
+      // Редактирование (3 часа)
+      allow update: if (
+        // Временное окно 3 часа
+        request.time < timestamp.value(resource.data.date) + duration.value(3, 'h') &&
+        (
+          // Редактирование анонимом по IP
+          (resource.data.authorIp == request.auth.token.ip &&
+           !resource.data.authorWallet) ||
+          
+          // Редактирование авторизованным по кошельку
+          (resource.data.authorWallet == request.auth.uid)
+        ) &&
+        // Защита от изменения авторства
+        request.resource.data.authorIp == resource.data.authorIp &&
+        request.resource.data.authorWallet == resource.data.authorWallet
+      );
+
+      // Удаление (3 часа + модераторы)
+      allow delete: if (
+        // Удаление в течение 3 часов
+        (request.time < timestamp.value(resource.data.date) + duration.value(3, 'h') &&
+          (
+            (resource.data.authorIp == request.auth.token.ip && 
+             !resource.data.authorWallet) || // Аноним
+            resource.data.authorWallet == request.auth.uid // Авторизованный
+          )
+        ) ||
+        // Модераторы могут удалять всегда
+        (request.auth.token.isModerator == true)
+      );
+
+      // ===== Правила для комментариев =====
+      match /comments/{commentId} {
+        // Чтение разрешено всем
+        allow read: if true;
+        
+        // Создание комментария
+        allow create: if (
+          request.resource.data.text is string &&
+          request.resource.data.authorIp is string
+        );
+
+        // Редактирование (только автор по IP)
+        allow update: if (
+          resource.data.authorIp == request.auth.token.ip &&
+          // Можно менять только текст
+          request.resource.data.text is string &&
+          request.resource.data.authorIp == resource.data.authorIp
+        );
+
+        // Удаление (автор или модератор)
+        allow delete: if (
+          resource.data.authorIp == request.auth.token.ip ||
+          request.auth.token.isModerator == true
+        );
+      }
+    }
+
+    // ===== Recovery Codes (только создание) =====
+    match /recoveryCodes/{codeId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}
