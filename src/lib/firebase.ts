@@ -3,7 +3,6 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Your web app’s Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -13,9 +12,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only once
+// Добавляем проверку для Vercel
+function assertFirebaseConfig() {
+  if (typeof window === 'undefined') {
+    // Серверный режим (SSR)
+    if (!firebaseConfig.apiKey) {
+      throw new Error(`
+        Missing Firebase config! Check:
+        1. Vercel ENV variables
+        2. next.config.js env export
+        Current config: ${JSON.stringify(firebaseConfig, null, 2)}
+      `);
+    }
+  } else {
+    // Клиентский режим
+    if (!firebaseConfig.apiKey) {
+      console.error('Firebase config missing!', firebaseConfig);
+    }
+  }
+}
+
+assertFirebaseConfig();
+
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Export Firestore and Auth
 export const db = getFirestore(app);
 export const auth = getAuth(app);
