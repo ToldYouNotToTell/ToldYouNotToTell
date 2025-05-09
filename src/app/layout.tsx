@@ -1,10 +1,9 @@
+// app/layout.tsx
 "use client";
 import "./globals.css";
+
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl } from "@solana/web3.js";
 import Head from "next/head";
@@ -14,20 +13,14 @@ import Header from "@/components/header/Header";
 import SortBar from "@/components/posts/SortControls";
 import { PostsProvider } from "@/contexts/PostsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { Web3Provider } from "@/contexts/Web3Context"; // Ваш кастомный провайдер
-
-// Solana-зависимости
+import { Web3Provider } from "@/contexts/Web3Context";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const NETWORK = WalletAdapterNetwork.Devnet;
-
+  
+  // Оптимизация: вынесен отдельно для читаемости
   const endpoint = useMemo(() => clusterApiUrl(NETWORK), [NETWORK]);
-
-  const wallets = useMemo(() => {
-    if (typeof window === "undefined") return [];
-    return []; 
-  }, []);
 
   useEffect(() => setMounted(true), []);
 
@@ -56,11 +49,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <ThemeProvider>
           <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect={false}>
+            {/* Упрощение wallets до пустого массива (без условий) */}
+            <WalletProvider wallets={[]} autoConnect={false}>
               <WalletModalProvider>
                 <Web3Provider>
-                  {" "}
-                  {/* Ваш кастомный провайдер */}
                   <PostsProvider>
                     <Header />
                     <SortBar />
