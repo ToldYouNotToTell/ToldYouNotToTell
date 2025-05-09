@@ -10,11 +10,21 @@ export const FirebaseProvider = ({
   children: React.ReactNode;
 }) => {
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    if (!auth) {
+      console.warn("Firebase Auth not initialized");
+      return;
+    }
+
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        migrateLocalToFirebase();
+        try {
+          await migrateLocalToFirebase();
+        } catch (e) {
+          console.error("Migration failed:", e);
+        }
       }
     });
+
     return () => unsubscribe();
   }, []);
 
