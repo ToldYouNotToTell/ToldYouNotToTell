@@ -1,6 +1,6 @@
 import { setGlobalOptions } from "firebase-functions/v2";
+
 import { verifyCaptcha } from "./verifyCaptcha";
-import * as logger from "firebase-functions/logger";
 
 // Настройки для всех функций
 setGlobalOptions({ 

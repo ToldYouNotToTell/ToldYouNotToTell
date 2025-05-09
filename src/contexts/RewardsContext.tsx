@@ -25,17 +25,20 @@ export function RewardsProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(doc(db, "rewards/pool"), (doc) => {
-      const poolData = doc.data();
-      setData((prev) => ({
-        ...prev,
-        poolAmount: poolData?.amount || 0,
-        lastDistribution: poolData?.lastDistributed?.toDate() || null,
-      }));
-    });
+  if (!db) return;
 
-    return () => unsubscribe();
-  }, []);
+  const unsubscribe = onSnapshot(doc(db, "rewards/pool"), (doc) => {
+    const poolData = doc.data();
+    setData((prev) => ({
+      ...prev,
+      poolAmount: poolData?.amount || 0,
+      lastDistribution: poolData?.lastDistributed?.toDate() || null,
+    }));
+  });
+
+  return () => unsubscribe();
+}, []);
+
 
   return (
     <RewardsContext.Provider value={data}>{children}</RewardsContext.Provider>

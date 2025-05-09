@@ -32,22 +32,22 @@ export function StakingProvider({ children }: { children: React.ReactNode }) {
     trendingPosts: 0,
   });
 
-  useEffect(() => {
-    if (!walletAddress) return;
+ useEffect(() => {
+  if (!walletAddress || !db) return;
 
-    const unsubscribe = onSnapshot(doc(db, "staking", walletAddress), (doc) => {
-      const data = doc.data();
-      const amount = data?.amount || 0;
+  const unsubscribe = onSnapshot(doc(db, "staking", walletAddress), (doc) => {
+    const data = doc.data();
+    const amount = data?.amount || 0;
 
-      setState({
-        stakedAmount: amount,
-        stakingTier: calculateStakingTier(amount),
-        trendingPosts: calculateTrendingPosts(amount),
-      });
+    setState({
+      stakedAmount: amount,
+      stakingTier: calculateStakingTier(amount),
+      trendingPosts: calculateTrendingPosts(amount),
     });
+  });
 
-    return () => unsubscribe();
-  }, [walletAddress]);
+  return () => unsubscribe();
+}, [walletAddress]);
 
   const stakeTokens = async (_amount: number) => {
     //*fake

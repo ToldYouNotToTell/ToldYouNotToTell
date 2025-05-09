@@ -1,11 +1,11 @@
 import { initializeApp } from "firebase-admin/app";
 import { getAppCheck } from "firebase-admin/app-check";
 import { getFirestore } from "firebase-admin/firestore";
-import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
+import { onRequest } from "firebase-functions/v2/https";
 
 initializeApp();
-const db = getFirestore();
+const _db = getFirestore();
 
 export const verifyCaptcha = onRequest(
   { 

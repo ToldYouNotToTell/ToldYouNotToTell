@@ -1,4 +1,3 @@
-// src/hooks/useUniversalStorage.ts
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
@@ -16,49 +15,49 @@ export const useUniversalStorage = <T>(
     return initialValue;
   });
 
+  // 🔽 Загрузка из Firestore
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !auth || !db) return;
+
     const user = auth.currentUser;
     if (!user) return;
 
     const syncWithFirebase = async () => {
       try {
-        const docRef = doc(db, "users", user.uid);
+        const docRef = doc(db!, "users", user.uid);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists() && docSnap.data()[key] !== undefined) {
           const firebaseValue = docSnap.data()[key] as T;
           setValue(firebaseValue);
-          window.localStorage.setItem(key, JSON.stringify(firebaseValue));
-        } else {
-          await setDoc(docRef, { [key]: value }, { merge: true });
         }
       } catch (error) {
-        console.error("Firebase sync error:", error);
+        console.error("Error syncing with Firebase:", error);
       }
     };
 
     syncWithFirebase();
-  }, [key, value]);
+  }, [key]);
 
-  const setValueUniversal = async (newValue: T) => {
+  // 🔽 Сохранение в Firestore
+  const setAndSync = async (newValue: T) => {
     setValue(newValue);
-    if (typeof window !== "undefined" && window.localStorage) {
-      window.localStorage.setItem(key, JSON.stringify(newValue));
-    }
+
+    if (typeof window === "undefined" || !auth || !db) return;
+
     const user = auth.currentUser;
     if (!user) return;
 
     try {
-      await setDoc(
-        doc(db, "users", user.uid),
-        { [key]: newValue },
-        { merge: true },
-      );
+      const docRef = doc(db, "users", user.uid);
+      await setDoc(docRef, { [key]: newValue }, { merge: true });
     } catch (error) {
-      console.error("Firebase save error:", error);
+      console.error("Error saving to Firebase:", error);
     }
+
+    // Также обновим localStorage
+    window.localStorage.setItem(key, JSON.stringify(newValue));
   };
 
-  return [value, setValueUniversal];
+  return [value, setAndSync];
 };
