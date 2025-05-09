@@ -12,6 +12,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+console.log("FIREBASE CONFIG:", firebaseConfig);
+
 const app = typeof window !== 'undefined' ? 
   (!getApps().length ? initializeApp(firebaseConfig) : getApp()) : 
   null;
