@@ -23,23 +23,26 @@ import type { Post, BoostTier } from "@/types/post";
 type PostStatus = 'approved' | 'rejected' | 'pending';
 
 export class UniversalStorage {
-  private postsRef = collection(db, "posts");
+  private get postsRef() {
+    if (!db) throw new Error("Firestore not initialized");
+    return collection(db, "posts");
+  }
 
-  // ====== Post Methods ======
   async addPost(postData: Omit<Post, "id">): Promise<string> {
+    if (!db) throw new Error("Firestore not initialized");
+
     try {
       const cleanPost = {
         ...postData,
-        shortId: this.generateShortId(), // Генерируем код здесь
+        shortId: this.generateShortId(),
         date: this.normalizeDate(postData.date) ?? Timestamp.now(),
         votes: {},
         positiveVotesCount: 0,
         comments: [],
         status: 'pending'
       };
-      
+
       const ref = await addDoc(this.postsRef, cleanPost);
-      
       return ref.id;
     } catch {
       throw new Error("Failed to create post");

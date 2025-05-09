@@ -5,7 +5,6 @@ import {
   query,
   orderBy,
   onSnapshot,
-  DocumentData
 } from "firebase/firestore";
 import React, {
   createContext,
@@ -124,39 +123,45 @@ export function PostsProvider({ children }: { children: ReactNode }) {
 
   // 1. Загрузка постов с обработкой ошибок
   useEffect(() => {
-    const postsQuery = query(
-      collection(db, "posts"), 
-      orderBy("orderNumber", "desc")
-    );
-  
-    const unsubscribe = onSnapshot(
-      postsQuery, 
-      (snapshot) => {
-        const loadedPosts = snapshot.docs.map((doc) => {
-          const data = doc.data() as DocumentData;
-          return {
-            ...storage.parsePostData(doc.id, data),
-            date: data.date instanceof Timestamp ? data.date.toDate() : new Date(data.date),
-            boostTime: data.boostTime 
-              ? data.boostTime instanceof Timestamp 
-                ? data.boostTime.toDate() 
-                : new Date(data.boostTime) 
-              : null,
-            currentBoostWeight: data.currentBoostWeight ? Number(data.currentBoostWeight) : null
-          };
-        });
-        setPosts(loadedPosts);
-        setFilteredPosts(loadedPosts);
-        setLoading(false);
-      },
-      () => { 
-        setError("Failed to load posts");
-        setLoading(false);
-      }
-    );
-  
-    return () => unsubscribe();
-  }, [storage]);
+  if (!db) {
+    setError("Database not initialized");
+    setLoading(false);
+    return;
+  }
+
+  const postsQuery = query(
+    collection(db, "posts"), 
+    orderBy("orderNumber", "desc")
+  );
+
+  const unsubscribe = onSnapshot(
+    postsQuery, 
+    (snapshot) => {
+      const loadedPosts = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          ...storage.parsePostData(doc.id, data),
+          date: data.date instanceof Timestamp ? data.date.toDate() : new Date(data.date),
+          boostTime: data.boostTime 
+            ? data.boostTime instanceof Timestamp 
+              ? data.boostTime.toDate() 
+              : new Date(data.boostTime) 
+            : null,
+          currentBoostWeight: data.currentBoostWeight ? Number(data.currentBoostWeight) : null
+        };
+      });
+      setPosts(loadedPosts);
+      setFilteredPosts(loadedPosts);
+      setLoading(false);
+    },
+    (error) => { 
+      setError("Failed to load posts: " + error.message);
+      setLoading(false);
+    }
+  );
+
+  return () => unsubscribe();
+}, [storage]);
 
   const addPost = async (postData: {
     title: string;

@@ -28,11 +28,9 @@ export default function PostForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Автоматический подсчет символов
   const titleCount = title.length;
   const contentCount = content.length;
 
-  // Сбрасываем ошибку при изменении полей
   useEffect(() => {
     setError(null);
   }, [title, content]);
@@ -40,7 +38,6 @@ export default function PostForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    // Валидация
     if (!title.trim() || title.length < 10) {
       setError("Title must be at least 10 characters");
       return;
@@ -73,18 +70,18 @@ export default function PostForm({
   };
   
   return (
-    <div className="add-post-form">
-      <h2>{mode === "create" ? "New Post" : "Edit Post"}</h2>
+    <div className="post-form-container">
+      <h2 className="post-form-title">{mode === "create" ? "New Post" : "Edit Post"}</h2>
       
       {error && (
-        <div className="error-message mb-4 p-2 text-red-600 bg-red-100 rounded">
+        <div className="post-form-error">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group mb-4">
-          <label htmlFor="postTitle" className="block mb-2 font-medium">
+      <form onSubmit={handleSubmit} className="post-form">
+        <div className="form-field">
+          <label htmlFor="postTitle" className="form-label">
             Title
           </label>
           <input
@@ -96,23 +93,23 @@ export default function PostForm({
             maxLength={100}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="form-input"
             disabled={isSubmitting}
           />
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="char-counter">
             {titleCount}/100 characters
           </div>
         </div>
 
-        <div className="form-group mb-4">
-          <label htmlFor="postCategory" className="block mb-2 font-medium">
+        <div className="form-field">
+          <label htmlFor="postCategory" className="form-label">
             Category
           </label>
           <select
             id="postCategory"
             value={category || ""}
             onChange={(e) => setCategory(e.target.value || undefined)}
-            className="w-full p-2 border rounded"
+            className="category-select" // Добавьте этот класс
             disabled={isSubmitting}
           >
             <option value="">Select a category</option>
@@ -124,8 +121,8 @@ export default function PostForm({
           </select>
         </div>
 
-        <div className="form-group mb-6">
-          <label htmlFor="postContent" className="block mb-2 font-medium">
+        <div className="form-field">
+          <label htmlFor="postContent" className="form-label">
             Content
           </label>
           <textarea
@@ -137,31 +134,31 @@ export default function PostForm({
             rows={8}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="form-textarea"
             disabled={isSubmitting}
           />
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="char-counter">
             {contentCount}/650 characters
           </div>
         </div>
 
-        <div className="form-actions flex justify-end gap-3">
+        <div className="form-actions">
           <button
             type="button"
             onClick={onClose}
-            className="cancel-btn px-4 py-2 border rounded"
+            className="cancel-button"
             disabled={isSubmitting}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="submit-btn px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="submit-button"
             disabled={isSubmitting || title.length < 10 || content.length < 100}
           >
             {isSubmitting ? (
-              <span className="flex items-center">
-                <span className="animate-spin mr-2">↻</span>
+              <span className="button-loading">
+                <span className="spinner">↻</span>
                 {mode === "create" ? "Publishing..." : "Saving..."}
               </span>
             ) : mode === "create" ? "Publish" : "Save Changes"}
