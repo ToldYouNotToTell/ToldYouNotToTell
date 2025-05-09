@@ -25,7 +25,8 @@
   --post-content-padding: 30px;
   --moderator-color: #ff5722;
   --category-color: #0a0a2a;
-  --category-text-color: #5d7ebc;
+  --category-text-color: #000000;
+  --form-text-color: #ffffff; 
   --boost-basic-color: #4caf50;
   --boost-start-plus-color: #9c27b0;
   --boost-advanced-color: #2196f3;
@@ -58,7 +59,8 @@
   --sort-btn-active-bg: #4a6fa5;
   --moderator-color: #e91e63;
   --category-color: #0a0a2a;
-  --category-text-color: #4a6fa5;
+  --category-text-color: #000000; /* Черный для категорий */
+  --form-text-color: #f8f3f3;
   --star-color: #f5b106;
   --icon-color: #666;
 }
@@ -897,13 +899,13 @@ post p {
 }
 
 /* ========== Форма добавления поста ========== */
-.add-post-form {
+.post-form {
   display: none;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: var(--overlay-bg);
+  background: rgba(10, 14, 23, 0.85);
   padding: 15px;
   border-radius: 8px;
   width: 90%;
@@ -917,7 +919,6 @@ post p {
     opacity 0.3s ease,
     transform 0.3s ease;
 }
-
 
 /* ========== Группы полей формы ========== */
 .form-group {
@@ -941,7 +942,7 @@ post p {
   font-family: "Tahoma";
   font-size: 16px;
   background: var(--search-bg);
-  color: var(--text-color);
+  color: #e0e0e0;
 }
 .form-group textarea {
   min-height: 150px;
@@ -1242,13 +1243,16 @@ post p {
   z-index: 999;
 }
 .modal-content {
-  background: white;
+  width: 90%; /* Можно увеличить до 95% */
+  max-width: 37rem; /* Увеличили с 32rem (512px) до 48rem (768px) */
+  min-width: 300px; min-height: 60vh; /* Минимальная высота */
+  max-height: 90vh; /* Максимальная высота */
+  overflow-y: auto;
+  background: rgb(9, 9, 20);
   border-radius: 8px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
-  width: 90%;
-  max-width: 32rem;
   overflow: hidden; /* Добавлено чтобы рамка не вылезала */
 }
 

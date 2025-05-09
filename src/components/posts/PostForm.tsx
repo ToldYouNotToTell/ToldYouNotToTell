@@ -70,7 +70,7 @@ export default function PostForm({
   };
   
   return (
-    <div className="post-form-container">
+    <div className="add-post-form">
       <h2 className="post-form-title">{mode === "create" ? "New Post" : "Edit Post"}</h2>
       
       {error && (
